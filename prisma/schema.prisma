@@ -13,47 +13,47 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Applicants {
-  applicantId Int    @id @default(autoincrement()) @map("applicantId")
-  email       String @unique @map("email")
-  password    String @map("password")
+model Users {
+  userId   Int    @id @default(autoincrement()) @map("userId")
+  email    String @unique @map("email")
+  password String @map("password")
 
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")
 
-  ApplicantInfos ApplicantInfos?
-  Resume         Resume[]
+  UserInfos UserInfos?
+  Resume    Resume[]
 
-  @@map("Applicants")
+  @@map("Users")
 }
 
-model ApplicantInfos {
-  applicantInfoId Int    @id @default(autoincrement()) @map("applicantInfoId")
-  ApplicantId     Int    @unique @map("applicantId")
-  name            String @map("name")
-  age             Int    @map("age")
-  gender          String @map("gender")
-  role            String @map("role")
-  profileImage    String @map("profileImage")
+model UserInfos {
+  userInfoId   Int    @id @default(autoincrement()) @map("userInfoId")
+  UserId       Int    @unique @map("UserId")
+  name         String @map("name")
+  age          Int    @map("age")
+  gender       String @map("gender")
+  role         String @map("role")
+  profileImage String @map("profileImage")
 
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")
 
-  Applicant Applicants @relation(fields: [ApplicantId], references: [applicantId], onDelete: Cascade)
+  User Users @relation(fields: [UserId], references: [userId], onDelete: Cascade)
 
-  @@map("ApplicantInfos")
+  @@map("UserInfos")
 }
 
 model Resume {
-  resumeId    Int    @id @default(autoincrement()) @map("resumeId")
-  ApplicantId Int    @unique @map("ApplicantId")
-  title       String @map("title")
-  content     String @map("content")
+  resumeId Int    @id @default(autoincrement()) @map("resumeId")
+  UserId   Int    @unique @map("UserId")
+  title    String @map("title")
+  content  String @map("content")
 
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")
 
-  Applicant Applicants @relation(fields: [ApplicantId], references: [applicantId], onDelete: Cascade)
+  User Users @relation(fields: [UserId], references: [userId], onDelete: Cascade)
 
   @@map("Resume")
 }
