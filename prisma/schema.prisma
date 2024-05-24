@@ -14,45 +14,46 @@ datasource db {
 }
 
 model Applicants {
-  applicantId    Int         @id @default(autoincrement()) @map("applicantId")
-  email          String      @unique  @map("email")
-  password       String      @map("password")
+  applicantId Int    @id @default(autoincrement()) @map("applicantId")
+  email       String @unique @map("email")
+  password    String @map("password")
 
-  createdAt      DateTime    @default(now()) @map("createdAt")
-  updatedAt      DateTime    @updatedAt @map("updatedAt")
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
 
-  @@map ("Applicants")
+  ApplicantInfos ApplicantInfos?
+  Resume         Resume[]
+
+  @@map("Applicants")
 }
 
 model ApplicantInfos {
-  applicantInfoId   Int       @id @default(autoincrement()) @map("applicantInfoId")
-  name              String    @map("name")
-  age               Int       @map("age")
-  gender            String    @map("gender")
-  profileImage      String    @map("profileImage")
+  applicantInfoId Int    @id @default(autoincrement()) @map("applicantInfoId")
+  ApplicantId     Int    @unique @map("applicantId")
+  name            String @map("name")
+  age             Int    @map("age")
+  gender          String @map("gender")
+  role            String @map("role")
+  profileImage    String @map("profileImage")
 
-  createdAt         DateTime  @default(now()) @map("createdAt")
-  updatedAt         DateTime  @updatedAt  @map("updatedAt")
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+
+  Applicant Applicants @relation(fields: [ApplicantId], references: [applicantId], onDelete: Cascade)
 
   @@map("ApplicantInfos")
 }
 
-model Recruiter {
-  recruiterId       Int       @id @default(autoincrement()) @map("recruiterId")
+model Resume {
+  resumeId    Int    @id @default(autoincrement()) @map("resumeId")
+  ApplicantId Int    @unique @map("ApplicantId")
+  title       String @map("title")
+  content     String @map("content")
 
-  createdAt         DateTime  @default(now()) @map("recruiter")
-  updatedAt         DateTime  @updatedAt  @map("recruiter")
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
 
-  @@map("Recruiter")
-}
+  Applicant Applicants @relation(fields: [ApplicantId], references: [applicantId], onDelete: Cascade)
 
-model Resume  {
-  resumeId          Int       @id @default(autoincrement()) @map("resumeId")
-  title             String    @map("title")
-  content           String    @map("content")
-
-  createdAt         DateTime  @default(now()) @map("createdAt")
-  updatedAt         DateTime  @updatedAt   @map("updatedAt")
-
-  @@map ("Resume")
+  @@map("Resume")
 }
