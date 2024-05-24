@@ -5,6 +5,7 @@
   "repository": "https://github.com/CMINSOO/NBC_Job.git",
   "author": "minsooC <soochomin@gmail.com>",
   "license": "MIT",
+  "type": "module",
   "devDependencies": {
     "nodemon": "^3.1.0"
   },
