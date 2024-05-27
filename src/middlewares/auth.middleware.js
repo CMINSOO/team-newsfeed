@@ -32,7 +32,7 @@ export default async function (req, res, next) {
     switch (error.name) {
       case "TokenExpiredError": //토큰이 만료되었을때
         return res.status(401).json({ message: "토큰이 만료되었습니다" });
-      case "JsonWebTokenError": //토큰 검정에 실패했을때
+      case "JsonWebTokenError": //토큰 검증에 실패했을때
         return res.status(401).json({ message: "검증에 실패하였습니다" });
       default:
         return res
