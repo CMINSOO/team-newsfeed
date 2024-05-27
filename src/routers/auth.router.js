@@ -35,7 +35,7 @@ Router.post("/tokens", async (req, res) => {
 
 function createAccessToken(id) {
   const accessToken = jwt.sign({ id: id }, ACCESS_TOKEN_SECRET_KEY, {
-    expiresIn: "5s",
+    expiresIn: "12h",
   });
   return accessToken;
 }
@@ -45,6 +45,38 @@ function createRefreshToken(id) {
     expiresIn: "7d",
   });
   return refreshToken;
+}
+
+Router.get("/validate", async (req, res) => {
+  const accessToken = req.cookies.accessToken;
+
+  if (!accessToken) {
+    return res
+      .status(400)
+      .json({ errormessage: "AccessToken 이 존재하지 않습니다." });
+  }
+
+  const payload = validateToken(accessToken, ACCESS_TOKEN_SECRET_KEY);
+  if (!payload) {
+    return res
+      .status(401)
+      .json({ errormessage: "AccessToken 이 유효하지 않습니다." });
+  }
+  console.log(payload);
+  const { id } = payload;
+  return res.json({
+    message: `${id} 의 Payload 를 가진 Token 이 성공적으로 인증되었습니다.`,
+  });
+});
+
+// token 을 검증하고 payload를 반환하기
+function validateToken(token, secretKey) {
+  try {
+    const payload = jwt.verify(token, secretKey);
+    return payload;
+  } catch (error) {
+    return null;
+  }
 }
 
 export default Router;

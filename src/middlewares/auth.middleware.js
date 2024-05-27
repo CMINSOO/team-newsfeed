@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 export default async function (req, res, next) {
   // 클라 로 부터 쿠키 전달받기
   try {
-    const { authorization } = req.cookies;
+    const { authorization } = req.headers;
     // 쿠카가 Bearer 토큰 형식인지 확인하기
     const [tokenType, token] = authorization.split(" ");
     if (tokenType !== "Bearer")

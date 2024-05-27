@@ -28,13 +28,10 @@ model Users {
 }
 
 model UserInfos {
-  userInfoId   Int    @id @default(autoincrement()) @map("userInfoId")
-  UserId       Int    @unique @map("UserId")
-  name         String @map("name")
-  age          Int    @map("age")
-  gender       String @map("gender")
-  role         String @map("role")
-  profileImage String @map("profileImage")
+  userInfoId Int    @id @default(autoincrement()) @map("userInfoId")
+  UserId     Int    @unique @map("UserId")
+  name       String @map("name")
+  role       String @map("role")
 
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")

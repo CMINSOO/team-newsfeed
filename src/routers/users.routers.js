@@ -1,99 +1,66 @@
 import express from "express";
 import { prisma } from "../utils/prisma.util.js";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 
 const router = express.Router();
 
-// 사용자 회원가입 API
-router.post("/sign-up", async (req, res, next) => {
-  // 1. email, password, checkPassword, name 을 req.body 에 전달 받기
-  const { email, password, rePassword, name, gender, role, profileImage, age } =
-    req.body;
-  // 2.  유효성 검증 및 에러 처리
-  //   2-1. 회원정보 하나라도 빠진 경우 000을 입력해주세요
-  if (
-    !email ||
-    !password ||
-    !rePassword ||
-    !name ||
-    !gender ||
-    !role ||
-    !profileImage ||
-    !age
-  ) {
-    return res.status(400).json({ message: "정보를 모두 입력해주세요." });
-  }
-  //   2-2. 이메일 형식에 맞지 않는 경우
+// 회원가입API
 
-  //   2-3. 이메일이 중복되는 경우 "이미가입된 사용자입니다"
-  const isExistEmail = await prisma.users.findFirst({
-    where: { email },
+router.post("/sign-up", async (req, res, next) => {
+  const { email, password, repassword, name } = req.body;
+
+  //  회원 정보가 하나라도 빠진경우
+  if (!email || !password || !repassword || !name) {
+    return res.status(400).json({ message: "모든 정보를 입력해주세요." });
+  }
+  // 이메일형식에 맞지 않을경우
+  // 이메일이 중복되는경우
+  const existEmail = await prisma.users.findFirst({
+    where: {
+      email,
+    },
   });
-  if (isExistEmail) {
+  if (existEmail) {
     return res.status(409).json({ message: "이미 존재하는 이메일입니다" });
   }
-  // 2-4 비밀번호가 6자리 미만인 경우
+  // 비밀번호가 6자리 미만인경우
   if (password.length < 6) {
     return res
       .status(400)
-      .json({ message: "비밀번호 는 6자리 이상이여야 합니다" });
+      .json({ error: "비밀번호는 6자리 이상이여야합니다." });
   }
-  // 2-5 비밀번호와 비밀번호 확인 일치하지 않을경우
-  if (password !== rePassword) {
-    return res
-      .status(400)
-      .json({ message: "비밀번호와 확인비밀번호가 다릅니다 " });
+  // 비밀번호와 비밀번호 확인이 일치하지 않을경우
+  if (password !== repassword) {
+    return res.status(409).json({ message: "두 비밀번호가 다릅니다." });
   }
-
-  // 암호화된 패스워드 만들기
+  // 비밀번호 암호화
   const hashedPassword = await bcrypt.hash(password, 10);
-
-  //  prisma user 테이블에 사용자 추가하기
+  // user 테이블에 사용자 추가
   const user = await prisma.users.create({
     data: {
       email,
       password: hashedPassword,
     },
   });
-  // userinfo 테이블에 사용자  정보 추가하기
+  // userinfo 테이블에 사용자 정보 추가
   const userinfo = await prisma.userInfos.create({
     data: {
       UserId: user.userId,
       name,
-      age,
-      gender: gender.toUpperCase(),
-      role: role.toUpperCase(),
-      profileImage,
+      role: "APPLICANT",
     },
   });
-  return res.status(201).json({ message: "회원가입이 완료되었습니다." });
-});
-
-// 로그인 API
-router.post("/sign-in", async (req, res, next) => {
-  const { email, password } = req.body;
-  // 이에일 존재여부확인하기
-  const user = await prisma.users.findFirst({ where: { email } });
-  if (!user) {
-    return res.status(401).json({ message: "존재하지 않는 이메일입니다." });
-  }
-  //  입력한 패스워드와 데이터베이스 패스워드 비크립르로 검증
-  const result = await bcrypt.compare(password, user.password);
-  if (!result) {
-    return res.status(401).json({ message: "비밀번호가 일치하지 않습니다" });
-  }
-
-  // 로그인에 성공한다면, 사용자에게 jwt 발급하기
-  const token = jwt.sign(
-    {
-      userId: user.userId,
+  return res.status(201).json({
+    message: "회원가입이 완료되었습니다.",
+    data: {
+      id: user.userId,
+      email: user.email,
+      name: userinfo.name,
+      role: userinfo.role,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
     },
-    "customized_secret_key",
-  );
-
-  res.cookie("authorization", `Bearer ${token}`);
-  return res.status(200).json({ message: "로그인에 성공했습니다." });
+  });
 });
 
 export default router;
