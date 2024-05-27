@@ -31,7 +31,7 @@ model UserInfos {
   userInfoId Int    @id @default(autoincrement()) @map("userInfoId")
   UserId     Int    @unique @map("UserId")
   name       String @map("name")
-  role       String @map("role")
+  role       String @default("APPLICANT") @map("role")
 
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")
