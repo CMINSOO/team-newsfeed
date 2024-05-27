@@ -1,6 +1,7 @@
 import express from "express";
 import { prisma } from "../utils/prisma.util.js";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 const router = express.Router();
 
@@ -70,5 +71,29 @@ router.post("/sign-up", async (req, res, next) => {
 });
 
 // 로그인 API
+router.post("/sign-in", async (req, res, next) => {
+  const { email, password } = req.body;
+  // 이에일 존재여부확인하기
+  const user = await prisma.users.findFirst({ where: { email } });
+  if (!user) {
+    return res.status(401).json({ message: "존재하지 않는 이메일입니다." });
+  }
+  //  입력한 패스워드와 데이터베이스 패스워드 비크립르로 검증
+  const result = await bcrypt.compare(password, user.password);
+  if (!result) {
+    return res.status(401).json({ message: "비밀번호가 일치하지 않습니다" });
+  }
+
+  // 로그인에 성공한다면, 사용자에게 jwt 발급하기
+  const token = jwt.sign(
+    {
+      userId: user.userId,
+    },
+    "customized_secret_key",
+  );
+
+  res.cookie("authorization", `Bearer ${token}`);
+  return res.status(200).json({ message: "로그인에 성공했습니다." });
+});
 
 export default router;
