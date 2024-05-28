@@ -97,4 +97,29 @@ router.get("/reading/:resumeId", authMiddleware, async (req, res) => {
     .json({ message: "이력서 상세조회에 성공했습니다", data: { crosscheck } });
 });
 
+// 이력서 수정 api
+router.patch("/update/:resumeId", authMiddleware, async (req, res, next) => {
+  try {
+    const { resumeId } = req.params;
+    const { userId } = req.user;
+    const { title, content } = req.body;
+
+    const resume = await prisma.resume.findFirst({
+      where: { resumeId: +resumeId, UserId: +userId },
+    });
+    if (!resume) {
+      return res.state(401).json({ message: "이력서가 존재하지않습니다" });
+    }
+    // 수정
+    const updating = await prisma.resume.update({
+      where: { resumeId: +resumeId, UserId: +userId },
+      data: { title, content },
+    });
+    return res
+      .status(201)
+      .json({ message: "이력서 수정이 성공했습니다", data: { updating } });
+  } catch (err) {
+    next(err);
+  }
+});
 export default router;
