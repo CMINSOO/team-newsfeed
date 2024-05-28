@@ -19,6 +19,12 @@ router.post("/sign-up", async (req, res, next) => {
       return res.status(400).json({ message: "모든 정보를 입력해주세요." });
     }
     // 이메일형식에 맞지 않을경우
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      return res
+        .status(400)
+        .json({ error: "이메일 형식이 올바르지 않습니다." });
+    }
     // 이메일이 중복되는경우
     const existEmail = await prisma.users.findFirst({
       where: {
@@ -90,6 +96,12 @@ router.post("/sign-in", async (req, res, next) => {
       return res.status(400).json({ error: "비밀번호를 입력해주세요." });
     }
     // 이메일 형식이 올바르지 않을경우
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      return res
+        .status(400)
+        .json({ error: "이메일 형식이 올바르지 않습니다." });
+    }
     // 이메일로 조회되지 않거나 비밀번호가 일치하지 않는 경우
     const crosscheck = await prisma.users.findFirst({
       where: { email },
