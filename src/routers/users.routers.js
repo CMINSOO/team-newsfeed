@@ -113,7 +113,7 @@ router.post("/sign-in", async (req, res, next) => {
   }
 });
 
-router.get("/users", authMiddleware, async (req, res) => {
+router.get("/users", authMiddleware, async (req, res, next) => {
   try {
     const { userId } = req.user;
     console.log("test");
@@ -125,7 +125,7 @@ router.get("/users", authMiddleware, async (req, res) => {
         email: true,
         createdAt: true,
         updatedAt: true,
-        userInfos: {
+        UserInfos: {
           select: {
             name: true,
             role: true,
@@ -137,8 +137,8 @@ router.get("/users", authMiddleware, async (req, res) => {
     const resultdata = {
       userId: user.userId,
       email: user.email,
-      name: user.userInfos.name,
-      role: user.userInfos.role,
+      name: user.UserInfos.name,
+      role: user.UserInfos.role,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
