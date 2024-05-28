@@ -21,7 +21,7 @@ model Users {
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")
 
-  UserInfos UserInfos?
+  UserInfos UserInfos[]
   Resume    Resume[]
 
   @@map("Users")
@@ -29,7 +29,7 @@ model Users {
 
 model UserInfos {
   userInfoId Int    @id @default(autoincrement()) @map("userInfoId")
-  UserId     Int    @unique @map("UserId")
+  UserId     Int    @map("UserId")
   name       String @map("name")
   role       String @default("APPLICANT") @map("role")
 
@@ -43,7 +43,7 @@ model UserInfos {
 
 model Resume {
   resumeId Int    @id @default(autoincrement()) @map("resumeId")
-  UserId   Int    @unique @map("UserId")
+  UserId   Int    @map("UserId")
   title    String @map("title")
   content  String @map("content")
   state    String @default("APPLY") @map("state")

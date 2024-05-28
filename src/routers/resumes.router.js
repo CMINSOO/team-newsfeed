@@ -31,4 +31,34 @@ router.post("/posting", authMiddleware, async (req, res, next) => {
   }
 });
 
+// 이력서 목록 조회 api
+router.get("/listing", authMiddleware, async (req, res) => {
+  // 사용자 가져오기
+  const user = req.user;
+  //req.query  정렬 조건 들기
+  const resumes = await prisma.resume.findMany({
+    select: {
+      resumeId: true,
+      title: true,
+      content: true,
+      state: true,
+      User: {
+        select: {
+          UserInfos: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+      createdAt: true,
+      updatedAt: true,
+    },
+    orderBy: { createdAt: "desc" },
+  });
+  return res
+    .status(200)
+    .json({ message: "이력서 목록 조회에 성공하였습니다", data: resumes });
+});
+
 export default router;
