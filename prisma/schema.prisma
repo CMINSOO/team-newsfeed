@@ -22,7 +22,7 @@ model Users {
   updatedAt DateTime @updatedAt @map("updatedAt")
 
   UserInfos UserInfos?
-  Resume    Resume?
+  Resume    Resume[]
 
   @@map("Users")
 }

@@ -1,43 +1,54 @@
 import jwt from "jsonwebtoken";
+import { prisma } from "../utils/prisma.util.js";
+
+const ACCESS_TOKEN_SECRET_KEY = "process.env.ACCESS_TOKEN_SECRET_KEY";
 
 export default async function (req, res, next) {
-  // 클라 로 부터 쿠키 전달받기
   try {
-    const { authorization } = req.headers;
-    // 쿠카가 Bearer 토큰 형식인지 확인하기
-    const [tokenType, token] = authorization.split(" ");
+    const authorization = req.headers["authorization"];
+    //  **Authorization** 또는 **AccessToken이 없는 경우** - “인증 정보가 없습니다.”
+    if (!authorization) throw new Error(`인증 정보가 없습니다.`);
+
+    // - **JWT 표준 인증 형태와 일치하지 않는 경우** - “지원하지 않는 인증 방식입니다.”
+    const [tokenType, token] = authorization.split(" "); // 토큰타입 Bearer와 payload를 분리
+
     if (tokenType !== "Bearer")
-      throw new Error("토큰타입이 일치하지 않습니다.");
+      throw new Error("지원하지 않는 인증 방식입니다.");
 
-    //  서버에서 발급한 jwt 가 맞는 지 검증하기
-    const decodedToken = jwt.verify(token, "customized_secret_key");
-    const userId = decodedToken.userId;
+    const decodedToken = jwt.verify(token, ACCESS_TOKEN_SECRET_KEY); // 토큰의payload와 SECRETKEY가 동일하면 해당 데이터를 해석하여 변수로할당
+    const userId = decodedToken.id; // 해석한 데이터객체 내 userId키의 값을 userId 변수에 할당 / 해당변수는 숫자로 된 문자열
 
-    // jwt 의 userId 를 이용해 사용자 조회
+    // userId 변수가 데이터베이스 users테이블 내 userId 키의 일치한 값이 있는지 확인
+    // 없다면 쿠키 삭제 후 에러  메세지 반환
+    // - **Payload에 담긴 사용자 ID와 일치하는 사용자가 없는 경우** - “인증 정보와 일치하는 사용자가 없습니다.”
     const user = await prisma.users.findFirst({
       where: { userId: +userId },
     });
+
     if (!user) {
-      res.clearCookie("authorization"); //유저가 없으면 쿠키삭제
-      throw new Error("토큰사용자가 존재하지 않습니다");
+      res.clearCookie("authorization");
+      throw new Error("인증 정보와 일치하는 사용자가 없습니다.");
     }
 
-    //   req.user 에 조회된 사용자 정보 할당하기
+    // 위 조건 통과 시 req.user에 사용자 정보 저장 /
     req.user = user;
-    //  다음 미들웨어 실행하기
+
     next();
   } catch (error) {
-    res.clearCookie("authorization"); //특정 쿠키 삭제하기
+    res.clearCookie("authorization");
 
+    // 토큰이 만료되었거나, 조작되었을 때, 에러 메시지를 다르게 출력합니다.
     switch (error.name) {
-      case "TokenExpiredError": //토큰이 만료되었을때
-        return res.status(401).json({ message: "토큰이 만료되었습니다" });
-      case "JsonWebTokenError": //토큰 검증에 실패했을때
-        return res.status(401).json({ message: "검증에 실패하였습니다" });
+      // - **AccessToken의 유효기한이 지난 경우** - “인증 정보가 만료되었습니다.”
+      case "TokenExpiredError":
+        return res.status(401).json({ message: "인증 정보가 만료되었습니다." });
+      case "JsonWebTokenError":
+        return res.status(401).json({ message: "토큰이 조작되었습니다." });
+      // - **그 밖의 AccessToken 검증에 실패한 경우** - “인증 정보가 유효하지 않습니다.”
       default:
-        return res
-          .status(401)
-          .json({ message: error.message ?? "비정상적인 요청입니다" });
+        return res.status(401).json({
+          message: error.message ?? "인증 정보가 유효하지 않습니다.",
+        });
     }
   }
 }
