@@ -46,6 +46,7 @@ model Resume {
   UserId   Int    @unique @map("UserId")
   title    String @map("title")
   content  String @map("content")
+  state    String @default("APPLY") @map("state")
 
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")

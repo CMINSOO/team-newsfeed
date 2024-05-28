@@ -6,8 +6,6 @@ const ACCESS_TOKEN_SECRET_KEY = "process.env.ACCESS_TOKEN_SECRET_KEY";
 export default async function (req, res, next) {
   try {
     const authorization = req.headers["authorization"];
-    console.log(authorization);
-    console.log(req.headers);
     //  **Authorization** 또는 **AccessToken이 없는 경우** - “인증 정보가 없습니다.”
     if (!authorization) throw new Error(`인증 정보가 없습니다.`);
 
