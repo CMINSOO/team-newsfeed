@@ -26,7 +26,7 @@ router.post("/sign-up", async (req, res, next) => {
       },
     });
     if (existEmail) {
-      return res.status(409).json({ message: "이미 존재하는 이메일입니다" });
+      return res.status(400).json({ message: "이미 존재하는 이메일입니다" });
     }
     // 비밀번호가 6자리 미만인경우
     if (password.length < 6) {
@@ -113,6 +113,7 @@ router.post("/sign-in", async (req, res, next) => {
   }
 });
 
+// 유저 정보조회
 router.get("/users", authMiddleware, async (req, res, next) => {
   try {
     const { userId } = req.user;
