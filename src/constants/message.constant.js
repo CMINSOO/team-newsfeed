@@ -41,4 +41,31 @@ export const MESSAGES = {
       SUCCEED: "정보수정이 완료되었습니다.",
     },
   },
+  POST: {
+    COMMON: {
+      TITLE: {
+        REQUIRED: "제목을 입력해주세요",
+      },
+      CONTENT: {
+        REQUIRED: "내용을 입력해주세요",
+      },
+      NOT_FOUND: "게시글이 존재하지 않습니다.",
+    },
+    POSTING: {
+      SUCCEED: "게시글 생성이 완료되었습니다.",
+    },
+    READ_POST: {
+      SUCCEED: "게시글 조회에 성공하였습니다.",
+    },
+    READ_DETAIL: {
+      SUCCEED: "게시글 상세 조회에 성공하였습니다.",
+    },
+    UPDATE: {
+      SUCCEED: "이력서 수정에 성공하였습니다",
+      NO_BODY_DATA: "수정할 정보를 입력해주세요",
+    },
+    DELETE: {
+      SUCCEED: "게시글 삭제를 완료했습니다.",
+    },
+  },
 };

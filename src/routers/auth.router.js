@@ -1,17 +1,20 @@
 import express from "express";
 import { prisma } from "../utils/prisma.util.js";
-import { signUpValidator } from "../middlewares/validators/sign-up-validator.middleware.js";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { signUpValidator } from "../middlewares/validators/sign-up-validator.middleware.js";
 import authMiddleware from "../middlewares/auth.middleware.js";
 import { HTTP_STATUS } from "../constants/http-stsatus-constant.js";
 import { MESSAGES } from "../constants/message.constant.js";
 import { updateValidator } from "../middlewares/validators/update-validator.middleware.js";
 // 외부로
+
 const authRouter = express.Router();
 
 // 회원가입 api
 authRouter.post("/sign-up", signUpValidator, async (req, res, next) => {
   try {
+
     const { name, email, password, nickname } = req.body;
 
     // 이미 존재하는 이메일인지 확인
@@ -25,6 +28,7 @@ authRouter.post("/sign-up", signUpValidator, async (req, res, next) => {
         message: MESSAGES.AUTH.COMMON.EMAIL.DUPLICATE_EMAIL,
       });
     }
+
 
     const existnickname = await prisma.user.findUnique({
       where: { nickname },
@@ -100,6 +104,7 @@ authRouter.put("/user/:id", updateValidator, async (req, res, next) => {
       status: HTTP_STATUS.BAD_REQUEST,
       Message: MESSAGES.AUTH.COMMON.EMAIL.NOT_EXIST_EMAIL,
     });
+    
   }
   const hashedPassword = await bcrypt.hash(newpassword, 10);
   const userInfo = await prisma.user.update({
