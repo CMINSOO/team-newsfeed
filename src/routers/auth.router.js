@@ -1,5 +1,6 @@
 import express from "express";
 import { prisma } from "../utils/prisma.util.js";
+import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { signUpValidator } from "../middlewares/validators/sign-up-validator.middleware.js";
 import { HTTP_STATUS } from "../constants/http-stsatus-constant.js";
@@ -11,7 +12,7 @@ import {
   ACCESS_TOKEN_SECRET,
   TOKEN_EXPIREDIN,
   REFRESH_TOKEN_SECRET,
-  REFRESH_TOKEN_EXPIREDIN
+  REFRESH_TOKEN_EXPIREDIN,
 } from "../constants/env.constants.js";
 /* 24.06.03 김영규 추가 - end */
 import { updateValidator } from "../middlewares/validators/update-validator.middleware.js";
@@ -73,33 +74,25 @@ authRouter.post("/sign-up", signUpValidator, async (req, res, next) => {
   }
 });
 
-
 // 로그인
 authRouter.post("/sign-in", signInValidator, async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-authRouter.get("/user/:id", async (req, res) => {
-  const { id } = req.params;
+      const user = await prisma.user.findFirst({
+        where: { email: email },
 
-  const user = await prisma.user.findFirst({
-    where: { id: +id },
-    //특정 컬럼만 조회하는 파라미터
-    select: {
-      id: true,
-      email: true,
-      password: true,
-      name: true,
-      nickname: true,
-      role: true,
-      createdAt: true,
-      updatedAt: true,
-    },
-  });
-  //3.조회한 사용자의 상세한 정보를 클라이언트에게 반환합니다.
-  return res.status(200).json({ data: user });
-});
-
+        select: {
+          id: true,
+          email: true,
+          password: true,
+          name: true,
+          nickname: true,
+          role: true,
+        },
+      });
+    
+    const isPasswordMatched = await bcrypt.compare(password, user.password);
     if (!isPasswordMatched) {
       return res.status(HTTP_STATUS.UNAUTHORIZED).json({
         status: HTTP_STATUS.UNAUTHORIZED,
@@ -110,17 +103,28 @@ authRouter.get("/user/:id", async (req, res) => {
     const { id } = req.body;
     const accessToken = createAccessToken(id);
     const refreshToken = createRefreshToken(id);
-    
+
     // Refresh Token을 가지고 해당 유저의 정보를 서버에 저장합니다.
-    tokenStorage[(refreshToken)] = {
+    tokenStorage[refreshToken] = {
       id: id, // 사용자에게 전달받은 ID를 저장합니다.
       ip: req.ip, // 사용자의 IP 정보를 저장합니다.
-      userAgent: req.headers['user-agent'], // 사용자의 User Agent 정보를 저장합니다.
+      userAgent: req.headers["user-agent"], // 사용자의 User Agent 정보를 저장합니다.
     };
-  
-    res.cookie('accessToken', accessToken); // Access Token을 Cookie에 전달한다.
-    res.cookie('refreshToken', refreshToken); // Refresh Token을 Cookie에 전달한다.
-    
+
+    res.cookie("accessToken", accessToken); // Access Token을 Cookie에 전달한다.
+    res.cookie("refreshToken", refreshToken); // Refresh Token을 Cookie에 전달한다.
+
+    user.password = undefined;
+    return res.status(HTTP_STATUS.OK).json({
+      status: HTTP_STATUS.OK,
+      message: MESSAGES.AUTH.SIGN_IN.SUCCEED,
+      data: user,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // 수정 api
 authRouter.put("/user/:id", updateValidator, async (req, res, next) => {
   try {
@@ -188,8 +192,7 @@ function createRefreshToken(id) {
 // 로그아웃
 authRouter.post("/sign-out", async (req, res, next) => {
   try {
-
-    res.clearCookie('accessToken','refreshToken');
+    res.clearCookie("accessToken", "refreshToken");
 
     return res.status(HTTP_STATUS.OK).json({
       status: HTTP_STATUS.OK,
