@@ -40,6 +40,9 @@ export const MESSAGES = {
     UPDATE: {
       SUCCEED: "정보수정이 완료되었습니다.",
     },
+    SIGN_OUT: {
+      SUCCEED: "로그아웃에 성공하였습니다.",
+    },
   },
   POST: {
     COMMON: {
