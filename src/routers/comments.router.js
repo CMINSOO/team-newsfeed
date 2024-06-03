@@ -52,37 +52,38 @@ commentRouter.post(
 
 //----------------------댓글 조회 API------------------------//
 
-commentRouter.get("/:postId/comments", async (req, res, next) => {});
-try {
-  //댓글 작성 게시물의 'postId'를 path parameters로 전달 받음
-  const { postId } = req.params;
+commentRouter.get("/:postId/comments", async (req, res, next) => {
+  try {
+    //댓글 작성 게시물의 'postId'를 path parameters로 전달 받음
+    const { postId } = req.params;
 
-  //게시글이 존재하는지 확인
-  const post = await prisma.findFirst({
-    postId: +postId,
-  });
-  if (!post) {
-    return res
-      .status(HTTP_STATUS.BAD_REQUEST)
-      .json({ message: "게시글이 존재하지 않습니다." });
-  }
+    //게시글이 존재하는지 확인
+    const post = await prisma.findFirst({
+      postId: +postId,
+    });
+    if (!post) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ message: "게시글이 존재하지 않습니다." });
+    }
 
-  //댓글 조회
-  const comments = await prisma.comments.findMany({
-    where: { PostId: +postId },
-    select: {
-      content: true,
-      user: {
-        select: { nickname: true },
+    //댓글 조회
+    const comments = await prisma.comments.findMany({
+      where: { PostId: +postId },
+      select: {
+        content: true,
+        user: {
+          select: { nickname: true },
+        },
       },
-    },
-    orderBy: { createdAt: "desc" },
-  });
+      orderBy: { createdAt: "desc" },
+    });
 
-  return res.status(HTTP_STATUS.OK).json({ data: comments });
-} catch (error) {
-  next(error);
-}
+    return res.status(HTTP_STATUS.OK).json({ data: comments });
+  } catch (error) {
+    next(error);
+  }
+});
 //----------------------댓글 수정 API-------------------------//
 commentRouter.put(
   "/:postId/comments/:commentId",
@@ -106,7 +107,7 @@ commentRouter.put(
 
       //댓글이 존재하는지 확인
       const comment = await prisma.comments.findFirst({
-        commentId: +commentId,
+        where: { commentId: +commentId },
       });
       if (!comment) {
         return res
@@ -164,4 +165,4 @@ commentRouter.delete(
   },
 );
 
-export default router;
+export { commentRouter };
