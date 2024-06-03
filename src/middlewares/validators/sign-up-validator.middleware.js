@@ -18,9 +18,6 @@ const schema = Joi.object({
   name: Joi.string().required().messages({
     "any.required": MESSAGES.AUTH.COMMON.NAME.REQUIRED,
   }),
-  nickname: Joi.string().required().messages({
-    "any.required": MESSAGES.AUTH.COMMON.NICKNAME.REQUIRED,
-  }),
 });
 
 export const signUpValidator = async (req, res, next) => {
