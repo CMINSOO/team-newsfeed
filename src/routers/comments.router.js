@@ -1,5 +1,5 @@
 import express from "express";
-import authMiddleware from "../../../../resume_site/src/middlewares/require-access-token.middleware.js";
+import authMiddleware from "../middlewares/auth.middleware.js";
 import { HTTP_STATUS } from "../constants/http-stsatus-constant.js";
 import { prisma } from "../utils/prisma.util.js";
 

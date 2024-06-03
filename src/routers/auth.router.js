@@ -1,9 +1,7 @@
 import express from "express";
 import { prisma } from "../utils/prisma.util.js";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import { signUpValidator } from "../middlewares/validators/sign-up-validator.middleware.js";
-import authMiddleware from "../middlewares/auth.middleware.js";
 import { HTTP_STATUS } from "../constants/http-stsatus-constant.js";
 import { MESSAGES } from "../constants/message.constant.js";
 import { updateValidator } from "../middlewares/validators/update-validator.middleware.js";
@@ -14,7 +12,6 @@ const authRouter = express.Router();
 // 회원가입 api
 authRouter.post("/sign-up", signUpValidator, async (req, res, next) => {
   try {
-
     const { name, email, password, nickname } = req.body;
 
     // 이미 존재하는 이메일인지 확인
@@ -28,7 +25,6 @@ authRouter.post("/sign-up", signUpValidator, async (req, res, next) => {
         message: MESSAGES.AUTH.COMMON.EMAIL.DUPLICATE_EMAIL,
       });
     }
-
 
     const existnickname = await prisma.user.findUnique({
       where: { nickname },
@@ -51,7 +47,6 @@ authRouter.post("/sign-up", signUpValidator, async (req, res, next) => {
         password: hashedPassword,
         name,
         nickname,
-        role,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -69,7 +64,7 @@ authRouter.post("/sign-up", signUpValidator, async (req, res, next) => {
   }
 });
 
-authRouter.get("/user/:id", async (req, res, next) => {
+authRouter.get("/user/:id", async (req, res) => {
   const { id } = req.params;
 
   const user = await prisma.user.findFirst({
@@ -92,39 +87,42 @@ authRouter.get("/user/:id", async (req, res, next) => {
 
 // 수정 api
 authRouter.put("/user/:id", updateValidator, async (req, res, next) => {
-  const { id } = req.params;
-  const { email, name, newpassword, nickname, role } = req.body;
+  try {
+    const { id } = req.params;
+    const { email, name, newpassword, nickname, role } = req.body;
 
-  const existuserid = await prisma.user.findFirst({
-    where: { id: +id },
-  });
-
-  if (!existuserid) {
-    return res.status(HTTP_STATUS.BAD_REQUEST).json({
-      status: HTTP_STATUS.BAD_REQUEST,
-      Message: MESSAGES.AUTH.COMMON.EMAIL.NOT_EXIST_EMAIL,
+    const existuserid = await prisma.user.findFirst({
+      where: { id: +id },
     });
-    
+
+    if (!existuserid) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        status: HTTP_STATUS.BAD_REQUEST,
+        Message: MESSAGES.AUTH.COMMON.EMAIL.NOT_EXIST_EMAIL,
+      });
+    }
+    const hashedPassword = await bcrypt.hash(newpassword, 10);
+    const userInfo = await prisma.user.update({
+      data: {
+        name: name,
+        password: hashedPassword,
+        email: email,
+        nickname: nickname,
+        role: role,
+      },
+      where: {
+        id: parseInt(id),
+      },
+    });
+    userInfo.password = undefined;
+    return res.status(HTTP_STATUS.OK).json({
+      status: HTTP_STATUS.OK,
+      message: MESSAGES.AUTH.UPDATE.SUCCEED,
+      data: userInfo,
+    });
+  } catch (error) {
+    next(error);
   }
-  const hashedPassword = await bcrypt.hash(newpassword, 10);
-  const userInfo = await prisma.user.update({
-    data: {
-      name: name,
-      password: hashedPassword,
-      email: email,
-      nickname: nickname,
-      role: role,
-    },
-    where: {
-      id: parseInt(id),
-    },
-  });
-  userInfo.password = undefined;
-  return res.status(HTTP_STATUS.CONFLICT).json({
-    status: HTTP_STATUS.OK,
-    message: MESSAGES.AUTH.UPDATE,
-    data: userInfo,
-  });
 });
 
 export { authRouter };
