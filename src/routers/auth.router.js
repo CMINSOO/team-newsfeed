@@ -4,15 +4,26 @@ import bcrypt from "bcrypt";
 import { signUpValidator } from "../middlewares/validators/sign-up-validator.middleware.js";
 import { HTTP_STATUS } from "../constants/http-stsatus-constant.js";
 import { MESSAGES } from "../constants/message.constant.js";
+import { HASH_SALT_ROUNDS } from "../constants/auth.constant.js";
+import { signInValidator } from "../middlewares/validators/sign-in-validator.middleware.js";
+/* 24.06.03 김영규 추가 - start */
+import {
+  ACCESS_TOKEN_SECRET,
+  TOKEN_EXPIREDIN,
+  REFRESH_TOKEN_SECRET,
+  REFRESH_TOKEN_EXPIREDIN
+} from "../constants/env.constants.js";
+/* 24.06.03 김영규 추가 - end */
 import { updateValidator } from "../middlewares/validators/update-validator.middleware.js";
 // 외부로
-
 const authRouter = express.Router();
+/* 24.06.03 김영규 추가 */
+const tokenStorage = {};
 
 // 회원가입 api
 authRouter.post("/sign-up", signUpValidator, async (req, res, next) => {
   try {
-    const { name, email, password, nickname } = req.body;
+    const { email, password, name, nickname } = req.body;
 
     // 이미 존재하는 이메일인지 확인
     const existEmail = await prisma.user.findUnique({
@@ -47,8 +58,6 @@ authRouter.post("/sign-up", signUpValidator, async (req, res, next) => {
         password: hashedPassword,
         name,
         nickname,
-        createdAt: new Date(),
-        updatedAt: new Date(),
       },
     });
 
@@ -63,6 +72,12 @@ authRouter.post("/sign-up", signUpValidator, async (req, res, next) => {
     next(error);
   }
 });
+
+
+// 로그인
+authRouter.post("/sign-in", signInValidator, async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
 
 authRouter.get("/user/:id", async (req, res) => {
   const { id } = req.params;
@@ -85,6 +100,27 @@ authRouter.get("/user/:id", async (req, res) => {
   return res.status(200).json({ data: user });
 });
 
+    if (!isPasswordMatched) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+        status: HTTP_STATUS.UNAUTHORIZED,
+        message: MESSAGES.AUTH.COMMON.UNAUTHENTICATED,
+      });
+    }
+    /** Access Token, Refresh Token 발급 API **/
+    const { id } = req.body;
+    const accessToken = createAccessToken(id);
+    const refreshToken = createRefreshToken(id);
+    
+    // Refresh Token을 가지고 해당 유저의 정보를 서버에 저장합니다.
+    tokenStorage[(refreshToken)] = {
+      id: id, // 사용자에게 전달받은 ID를 저장합니다.
+      ip: req.ip, // 사용자의 IP 정보를 저장합니다.
+      userAgent: req.headers['user-agent'], // 사용자의 User Agent 정보를 저장합니다.
+    };
+  
+    res.cookie('accessToken', accessToken); // Access Token을 Cookie에 전달한다.
+    res.cookie('refreshToken', refreshToken); // Refresh Token을 Cookie에 전달한다.
+    
 // 수정 api
 authRouter.put("/user/:id", updateValidator, async (req, res, next) => {
   try {
@@ -124,5 +160,45 @@ authRouter.put("/user/:id", updateValidator, async (req, res, next) => {
     next(error);
   }
 });
+
+/* 24.06.03 김영규 추가 - start */
+
+// Access Token을 생성하는 함수
+function createAccessToken(id) {
+  const accessToken = jwt.sign(
+    { id: id }, // JWT 데이터
+    ACCESS_TOKEN_SECRET, // Access Token의 비밀 키
+    { expiresIn: TOKEN_EXPIREDIN }, // Access Token이 10초 뒤에 만료되도록 설정합니다.
+  );
+
+  return accessToken;
+}
+
+// Refresh Token을 생성하는 함수
+function createRefreshToken(id) {
+  const refreshToken = jwt.sign(
+    { id: id }, // JWT 데이터
+    REFRESH_TOKEN_SECRET, // Refresh Token의 비밀 키
+    { expiresIn: REFRESH_TOKEN_EXPIREDIN }, // Refresh Token이 7일 뒤에 만료되도록 설정합니다.
+  );
+
+  return refreshToken;
+}
+
+// 로그아웃
+authRouter.post("/sign-out", async (req, res, next) => {
+  try {
+
+    res.clearCookie('accessToken','refreshToken');
+
+    return res.status(HTTP_STATUS.OK).json({
+      status: HTTP_STATUS.OK,
+      message: MESSAGES.AUTH.SIGN_OUT,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+/* 24.06.03 김영규 추가 - end */
 
 export { authRouter };

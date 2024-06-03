@@ -19,6 +19,10 @@ export const MESSAGES = {
       NAME: {
         REQUIRED: "이름을 입력해주세요.",
       },
+      /* 24.06.03 김영규 추가 */
+      NICKNAME: {
+        REQUIRED: "별명을 입력해주세요.",
+      },
       UNAUTHENTICATED: "인증정보가 유효하지 않습니다.",
       JWT: {
         NO_TOKEN: "인증 정보가 없습니다.",
@@ -36,6 +40,10 @@ export const MESSAGES = {
     },
     SIGN_IN: {
       SUCCEED: "로그인에 성공하였습니다.",
+    },
+    /* 24.06.03 김영규 추가 */
+    SIGN_OUT: {
+      SUCCEED: "로그아웃에 성공하였습니다.",
     },
     UPDATE: {
       SUCCEED: "정보수정이 완료되었습니다.",
