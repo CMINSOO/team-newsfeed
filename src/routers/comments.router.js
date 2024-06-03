@@ -2,6 +2,7 @@ import express from "express";
 import authMiddleware from "../middlewares/auth.middleware.js";
 import { HTTP_STATUS } from "../constants/http-stsatus-constant.js";
 import { prisma } from "../utils/prisma.util.js";
+import { MESSAGES } from "../constants/message.constant.js";
 
 const commentRouter = express.Router();
 
@@ -23,7 +24,7 @@ commentRouter.post(
       if (!content) {
         return res
           .status(HTTP_STATUS.BAD_REQUEST)
-          .json({ message: "댓글을 입력해주세요." });
+          .json({ message: MESSAGES.POST.COMMENT.CONTENT.REQUIRED });
       }
 
       //게시글이 존재하는지 확인
@@ -31,7 +32,7 @@ commentRouter.post(
       if (!post) {
         return res
           .status(HTTP_STATUS.NOT_FOUND)
-          .json({ message: "게시글이 존재하지 않습니다." });
+          .json({ message: MESSAGES.POST.COMMON.NOT_FOUND });
       }
 
       //comments 테이블에 댓글 생성
@@ -64,7 +65,7 @@ commentRouter.get("/:postId/comments", async (req, res, next) => {
     if (!post) {
       return res
         .status(HTTP_STATUS.BAD_REQUEST)
-        .json({ message: "게시글이 존재하지 않습니다." });
+        .json({ message: MESSAGES.POST.COMMON.NOT_FOUND });
     }
 
     //댓글 조회
@@ -102,7 +103,7 @@ commentRouter.put(
       if (!content) {
         return res
           .status(HTTP_STATUS.BAD_REQUEST)
-          .json({ message: "댓글 수정내용을 입력해주세요." });
+          .json({ message: MESSAGES.POST.COMMENT.CONTENT.REQUIRED });
       }
 
       //댓글이 존재하는지 확인
@@ -112,7 +113,7 @@ commentRouter.put(
       if (!comment) {
         return res
           .status(HTTP_STATUS.BAD_REQUEST)
-          .json({ message: "댓글이 존재하지 않습니다." });
+          .json({ message: MESSAGES.POST.COMMENT.NOT_FOUND });
       }
 
       //댓글 수정
@@ -123,7 +124,7 @@ commentRouter.put(
 
       return res
         .status(HTTP_STATUS.OK)
-        .json({ message: "댓글 수정이 완료되었습니다." });
+        .json({ message: MESSAGES.POST.COMMENT.UPDATE.SUCCEED });
     } catch (error) {
       next(error);
     }
@@ -148,7 +149,7 @@ commentRouter.delete(
       if (!comment) {
         return res
           .status(HTTP_STATUS.BAD_REQUEST)
-          .json({ message: "댓글이 존재하지 않습니다." });
+          .json({ message: MESSAGES.POST.COMMENT.NOT_FOUND });
       }
 
       //댓글 삭제
@@ -158,7 +159,7 @@ commentRouter.delete(
 
       return res
         .status(HTTP_STATUS.OK)
-        .json({ message: "댓글이 삭제되었습니다." });
+        .json({ message: MESSAGES.POST.COMMENT.DELETE.SUCCEED });
     } catch (error) {
       next(error);
     }

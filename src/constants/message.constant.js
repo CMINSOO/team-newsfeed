@@ -67,5 +67,18 @@ export const MESSAGES = {
     DELETE: {
       SUCCEED: "게시글 삭제를 완료했습니다.",
     },
+    COMMENT: {
+      CONTENT: {
+        REQUIRED: "댓글을 입력해주세요",
+      },
+      NOT_FOUND: "댓글이 존재하지 않습니다.",
+      UPDATE: {
+        SUCCEED: "댓글 수정에 성공하였습니다",
+        NO_BODY_DATA: "수정할 정보를 입력해주세요",
+      },
+      DELETE: {
+        SUCCEED: "댓글 삭제를 완료했습니다.",
+      },
+    },
   },
 };
