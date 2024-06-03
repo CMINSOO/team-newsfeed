@@ -7,23 +7,27 @@ const schema = Joi.object({
     "any.required": MESSAGES.AUTH.COMMON.EMAIL.REQUIRED,
     "string.email": MESSAGES.AUTH.COMMON.EMAIL.INVALID_FORMAT,
   }),
-  password: Joi.string().required().min(MIN_PASSWORD_LENGTH).messages({
-    "any.required": MESSAGES.AUTH.COMMON.PASSWORD.REQUIRED,
-    "string.min": MESSAGES.AUTH.COMMON.PASSWORD.LENGTH,
-  }),
-  passwordConfirm: Joi.string().required().valid(Joi.ref("password")).messages({
-    "any.required": MESSAGES.AUTH.COMMON.PASSWORD_CONFIRM.REQUIRED,
-    "any.only": MESSAGES.AUTH.COMMON.PASSWORD_CONFIRM.NOT_MATCHED_WITH_PASSWORD,
-  }),
   name: Joi.string().required().messages({
     "any.required": MESSAGES.AUTH.COMMON.NAME.REQUIRED,
   }),
   nickname: Joi.string().required().messages({
     "any.required": MESSAGES.AUTH.COMMON.NICKNAME.REQUIRED,
   }),
+  newpassword: Joi.string().required().min(MIN_PASSWORD_LENGTH).messages({
+    "any.required": MESSAGES.AUTH.COMMON.PASSWORD.REQUIRED,
+    "string.min": MESSAGES.AUTH.COMMON.PASSWORD.LENGTH,
+  }),
+  passwordConfirm: Joi.string()
+    .required()
+    .valid(Joi.ref("newpassword"))
+    .messages({
+      "any.required": MESSAGES.AUTH.COMMON.PASSWORD_CONFIRM.REQUIRED,
+      "any.only":
+        MESSAGES.AUTH.COMMON.PASSWORD_CONFIRM.NOT_MATCHED_WITH_PASSWORD,
+    }),
 });
 
-export const signUpValidator = async (req, res, next) => {
+export const updateValidator = async (req, res, next) => {
   try {
     await schema.validateAsync(req.body);
     next();
