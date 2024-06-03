@@ -17,14 +17,13 @@ import {
 /* 24.06.03 김영규 추가 - end */
 import { updateValidator } from "../middlewares/validators/update-validator.middleware.js";
 // 외부로
+
 const authRouter = express.Router();
-/* 24.06.03 김영규 추가 */
-const tokenStorage = {};
 
 // 회원가입 api
 authRouter.post("/sign-up", signUpValidator, async (req, res, next) => {
   try {
-    const { email, password, name, nickname } = req.body;
+    const { name, email, password, nickname } = req.body;
 
     // 이미 존재하는 이메일인지 확인
     const existEmail = await prisma.user.findUnique({
@@ -59,6 +58,8 @@ authRouter.post("/sign-up", signUpValidator, async (req, res, next) => {
         password: hashedPassword,
         name,
         nickname,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
     });
 
@@ -73,6 +74,7 @@ authRouter.post("/sign-up", signUpValidator, async (req, res, next) => {
     next(error);
   }
 });
+
 
 // 로그인
 authRouter.post("/sign-in", signInValidator, async (req, res, next) => {
@@ -123,6 +125,27 @@ authRouter.post("/sign-in", signInValidator, async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+
+authRouter.get("/user/:id", async (req, res) => {
+  const { id } = req.params;
+
+  const user = await prisma.user.findFirst({
+    where: { id: +id },
+    //특정 컬럼만 조회하는 파라미터
+    select: {
+      id: true,
+      email: true,
+      password: true,
+      name: true,
+      nickname: true,
+      role: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+  //3.조회한 사용자의 상세한 정보를 클라이언트에게 반환합니다.
+  return res.status(200).json({ data: user });
+
 });
 
 // 수정 api
@@ -164,6 +187,7 @@ authRouter.put("/user/:id", updateValidator, async (req, res, next) => {
     next(error);
   }
 });
+
 
 /* 24.06.03 김영규 추가 - start */
 
