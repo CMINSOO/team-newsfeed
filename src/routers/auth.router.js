@@ -50,7 +50,7 @@ authRouter.post("/sign-up", signUpValidator, async (req, res, next) => {
     }
 
     // 비밀번호 해싱
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, HASH_SALT_ROUNDS);
 
     // 사용자 및 사용자 정보 생성
     const newUser = await prisma.user.create({
