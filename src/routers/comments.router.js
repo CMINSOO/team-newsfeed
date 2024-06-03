@@ -70,6 +70,12 @@ try {
   //댓글 조회
   const comments = await prisma.comments.findMany({
     where: { PostId: +postId },
+    select: {
+      content: true,
+      user: {
+        select: {nickname: true}
+      }
+    }
     orderBy: { createdAt: "desc" },
   });
 
@@ -78,7 +84,51 @@ try {
   next(error);
 }
 //----------------------댓글 수정 API-------------------------//
+router.put(
+  "/posts/:postId/comments/:commentId",
+  authMiddleware,
+  async (req, res, next) => {
+    //댓글 작성자가 로그인된 사용자인지 검증
+    try {
+      //댓글 작성 게시물의 'postId'를 path parameters로 전달 받음
+      const { postId } = req.params;
+      //댓글의 'commentId'를 path parameters로 전달 받음
+      const { commentId } = req.params;
+      //댓글 수정을 위한 'content'를 body로 전달 받음
+      const { content } = req.body;
 
+      //댓글 내용이 비어있는지 확인
+      if (!content) {
+        return res
+          .status(HTTP_STATUS.BAD_REQUEST)
+          .json({ message: "댓글 수정내용을 입력해주세요." });
+      }
+
+      //댓글이 존재하는지 확인
+      const comment = await prisma.comments.findFirst({
+        commentId: +commentId,
+      });
+      if (!comment) {
+        return res
+          .status(HTTP_STATUS.BAD_REQUEST)
+          .json({ message: "댓글이 존재하지 않습니다." });
+      }
+
+      //댓글 수정
+      const updatedComment = await prisma.comments.update({
+        where: { postId: +postId, commetId: +commentId },
+        data: { content: content },
+      });
+
+      return res
+        .status(HTTP_STATUS.OK)
+        .json({ message: "댓글 수정이 완료되었습니다." });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 //-----------------------댓글 삭제 API--------------------------//
+
 
 export default router;
