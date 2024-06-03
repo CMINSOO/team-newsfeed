@@ -3,11 +3,11 @@ import authMiddleware from "../../../../resume_site/src/middlewares/require-acce
 import { HTTP_STATUS } from "../constants/http-stsatus-constant.js";
 import { prisma } from "../utils/prisma.util.js";
 
-const router = express.Router();
+const commentRouter = express.Router();
 
 //----------------------댓글 생성 API---------------------//
-router.post(
-  "/posts/:postId/comments",
+commentRouter.post(
+  "/:postId/comments",
   authMiddleware,
   async (req, res, next) => {
     //댓글 작성자가 로그인된 사용자인지 검정
@@ -52,7 +52,7 @@ router.post(
 
 //----------------------댓글 조회 API------------------------//
 
-router.get("/posts/:postId/comments", async (req, res, next) => {});
+commentRouter.get("/:postId/comments", async (req, res, next) => {});
 try {
   //댓글 작성 게시물의 'postId'를 path parameters로 전달 받음
   const { postId } = req.params;
@@ -84,8 +84,8 @@ try {
   next(error);
 }
 //----------------------댓글 수정 API-------------------------//
-router.put(
-  "/posts/:postId/comments/:commentId",
+commentRouter.put(
+  "/:postId/comments/:commentId",
   authMiddleware,
   async (req, res, next) => {
     //댓글 작성자가 로그인된 사용자인지 검증
@@ -129,8 +129,8 @@ router.put(
   },
 );
 //-----------------------댓글 삭제 API--------------------------//
-router.delete(
-  "/posts/:postId/comments/:commentId",
+commentRouter.delete(
+  "/:postId/comments/:commentId",
   authMiddleware,
   async (req, res, next) => {
     //댓글 작성자가 로그인된 사용자인지 검증
