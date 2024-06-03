@@ -32,28 +32,28 @@ model User {
 
 model RefreshToken {
   id           Int      @id @default(autoincrement()) @map("id")
-  UsersId      Int      @unique @map("user_id")
+  usersId      Int      @unique @map("user_id")
   refreshtoken String   @map("refreshtoken")
   createdAt    DateTime @default(now()) @map("created_at")
 
-  Users User @relation(fields: [UsersId], references: [id], onDelete: Cascade)
+  Users User @relation(fields: [usersId], references: [id], onDelete: Cascade)
 
   @@map("refreshtoken")
 }
 
 model PostModal {
   id                 Int      @id @default(autoincrement()) @map("id")
-  Userid             Int      @map("userid")
+  authorid           Int      @map("userid")
   image              String?
   title              String
   content            String
   deleteYn           deleteYn @default(YES)
-  scheduledTimeStart DateTime
-  scheduledTimeEnd   DateTime
+  scheduledTimeStart String
+  scheduledTimeEnd   String
   createdAt          DateTime @default(now()) @map("created_at")
   updatedAt          DateTime @updatedAt @map("updated_at")
 
-  Users User @relation(fields: [Userid], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorid], references: [id], onDelete: Cascade)
 
   likes Like[]
 
@@ -62,14 +62,14 @@ model PostModal {
 
 model Comment {
   id        Int      @id @default(autoincrement()) @map("id")
-  UserId    Int      @map("userid")
+  userId    Int      @map("userid")
   PostId    Int      @map("postid")
   nickname  String   @unique @map("nickname")
   content   String
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  Users User @relation(fields: [UserId], references: [id], onDelete: Cascade)
+  Users User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   Likes Like[]
 
@@ -78,13 +78,13 @@ model Comment {
 
 model Like {
   id        Int      @id @default(autoincrement()) @map("id")
-  UserId    Int      @map("userid")
+  userId    Int      @map("userid")
   PostId    Int      @map("postid")
   commentId Int      @map("commentid")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  Users    User      @relation(fields: [UserId], references: [id], onDelete: Cascade)
+  Users    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   Posts    PostModal @relation(fields: [PostId], references: [id], onDelete: Cascade)
   Comments Comment   @relation(fields: [commentId], references: [id], onDelete: Cascade)
 }
