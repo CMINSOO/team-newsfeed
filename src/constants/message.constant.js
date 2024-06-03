@@ -5,10 +5,12 @@ export const MESSAGES = {
         REQUIRED: "이메일을 입력해주세요",
         INVALID_FORMAT: "이메일 형식에 맞게 입력햐주새요",
         DUPLICATE_EMAIL: "이미 가입된 사용자입니다.",
+        NOT_EXIST_EMAIL: "존재하지않는 이메일입니다.",
       },
       PASSWORD: {
         REQUIRED: "비밀번호를 입력해 주세요.",
         LENGTH: `비밀번호는 6자리 이상이어야 합니다.`,
+        WRONG_PASSWORD: "잘못된 비밀번호입니다 확인해주세요.",
       },
       PASSWORD_CONFIRM: {
         REQUIRED: "확인비밀번호를 입력해 주세요.",
@@ -24,12 +26,19 @@ export const MESSAGES = {
         EXPIRED: "인증 정보가 만료 되었습니다",
         NO_USER: "인증 정보와 일치하는 사용자가 없습니다.",
       },
+      NICKNAME: {
+        REQUIRED: "닉네임을 입력해주세요.",
+        DUPLICATE_NICKNAME: "이미사용중인 닉네임입니다.",
+      },
     },
     SIGN_UP: {
       SUCCEED: " 회원가입에 성공하였습니다.",
     },
     SIGN_IN: {
       SUCCEED: "로그인에 성공하였습니다.",
+    },
+    UPDATE: {
+      SUCCEED: "정보수정이 완료되었습니다.",
     },
   },
 };
