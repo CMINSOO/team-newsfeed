@@ -73,9 +73,9 @@ try {
     select: {
       content: true,
       user: {
-        select: {nickname: true}
-      }
-    }
+        select: { nickname: true },
+      },
+    },
     orderBy: { createdAt: "desc" },
   });
 
@@ -129,6 +129,39 @@ router.put(
   },
 );
 //-----------------------댓글 삭제 API--------------------------//
+router.delete(
+  "/posts/:postId/comments/:commentId",
+  authMiddleware,
+  async (req, res, next) => {
+    //댓글 작성자가 로그인된 사용자인지 검증
+    try {
+      //댓글 작성 게시물의 'postId'를 path parameters로 전달 받음
+      const { postId } = req.params;
+      //댓글의 'commentId'를 path parameters로 전달 받음
+      const { commentId } = req.params;
 
+      //댓글이 존재하는지 확인
+      const comment = await prisma.comments.findFirst({
+        commentId: +commentId,
+      });
+      if (!comment) {
+        return res
+          .status(HTTP_STATUS.BAD_REQUEST)
+          .json({ message: "댓글이 존재하지 않습니다." });
+      }
+
+      //댓글 삭제
+      await prisma.comments.delete({
+        where: { postId: +postId, commentId: +commentId },
+      });
+
+      return res
+        .status(HTTP_STATUS.OK)
+        .json({ message: "댓글이 삭제되었습니다." });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 export default router;
