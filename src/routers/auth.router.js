@@ -49,7 +49,7 @@ authRouter.post("/sign-up", signUpValidator, async (req, res, next) => {
     next(error);
   }
 });
-// 회원가입
+// 로그인
 authRouter.post("/sign-in", signInValidator, async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -73,7 +73,7 @@ authRouter.post("/sign-in", signInValidator, async (req, res, next) => {
 
     return res.status(HTTP_STATUS.OK).json({
       status: HTTP_STATUS.CREATED,
-      message: MESSAGES.AUTH.SIGN_IN,
+      message: MESSAGES.AUTH.SIGN_IN.SUCCEED,
       data: { accessToken },
     });
   } catch (error) {
