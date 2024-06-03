@@ -100,6 +100,8 @@ authRouter.post("/sign-in", signInValidator, async (req, res, next) => {
   }
 });
 
+/* 24.06.03 김영규 추가 - start */
+
 // Access Token을 생성하는 함수
 function createAccessToken(id) {
   const accessToken = jwt.sign(
@@ -122,7 +124,7 @@ function createRefreshToken(id) {
   return refreshToken;
 }
 
-// 로그인
+// 로그아웃
 authRouter.post("/sign-out", async (req, res, next) => {
   try {
 
@@ -136,5 +138,6 @@ authRouter.post("/sign-out", async (req, res, next) => {
     next(error);
   }
 });
+/* 24.06.03 김영규 추가 - end */
 
 export { authRouter };
