@@ -133,14 +133,14 @@ postRouter.put("/:id", upddatePostValidator, async (req, res, next) => {
       where: { id: +id, authorid },
     });
 
-    if (existPost) {
+    if (!existPost) {
       return res.status(HTTP_STATUS.NOTFOUND).json({
         status: HTTP_STATUS.NOTFOUND,
         message: MESSAGES.POST.COMMON.NOT_FOUND,
       });
     }
 
-    const data = await prisma.postModal.updateMany({
+    const data = await prisma.postModal.update({
       where: { id: +id, authorid },
       data: {
         ...(title && { title }),
@@ -173,7 +173,7 @@ postRouter.delete("/:id", async (req, res, next) => {
       where: { id: +id, authorid },
     });
 
-    if (existPost) {
+    if (!existPost) {
       return res.status(HTTP_STATUS.NOTFOUND).json({
         status: HTTP_STATUS.NOTFOUND,
         message: MESSAGES.POST.COMMON.NOT_FOUND,

@@ -111,8 +111,8 @@ authRouter.post("/sign-in", signInValidator, async (req, res, next) => {
       userAgent: req.headers["user-agent"], // 사용자의 User Agent 정보를 저장합니다.
     };
 
-    res.cookie("accessToken", accessToken); // Access Token을 Cookie에 전달한다.
-    res.cookie("refreshToken", refreshToken); // Refresh Token을 Cookie에 전달한다.
+    res.cookie("accessToken", `Bearer ` + accessToken); // Access Token을 Cookie에 전달한다.
+    res.cookie("refreshToken", `Bearer ` + refreshToken); // Refresh Token을 Cookie에 전달한다.
 
     user.password = undefined;
     return res.status(HTTP_STATUS.OK).json({
