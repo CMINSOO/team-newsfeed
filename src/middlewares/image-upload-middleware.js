@@ -1,4 +1,5 @@
-import aws from "aws-sdk";
+import { S3Client } from "@aws-sdk/client-s3";
+import { Upload } from "@aws-sdk/lib-storage";
 import multer from "multer";
 import multerS3 from "multer-s3";
 import path from "path";
@@ -8,19 +9,19 @@ import {
   AWS_SECRET_ACCESS_KEY,
 } from "../constants/env.constants.js";
 
-aws.config.update({
-  region: "arn:aws:iam::767398021007:user/node-newsfeed-project",
-  accessKeyId: AWS_ACCESS_KEY_ID,
-  secretAccesskey: AWS_SECRET_ACCESS_KEY,
+const s3Client = new S3Client({
+  region: "ap-northeast-2", // 실제 AWS 리전 값으로 변경하세요
+  credentials: {
+    accessKeyId: AWS_ACCESS_KEY_ID,
+    secretAccessKey: AWS_SECRET_ACCESS_KEY,
+  },
 });
-
-const s3 = new AWS.S3();
 
 const allowedExtensions = [".png", ".jpg", ".jpeg", ".bmp"];
 
 const imageUploader = multer({
   storage: multerS3({
-    s3: s3,
+    s3: s3Client,
     bucket: "node-newsfeed-project",
     key: (req, file, callback) => {
       const uploadDirectory = req.query.directory ?? "";
@@ -30,7 +31,7 @@ const imageUploader = multer({
       }
       callback(null, `${uploadDirectory}/${Date.now()}_${file.originalname}`);
     },
-    acl: "public-read-write",
+    acl: "public-read", // 올바른 ACL 값으로 수정
   }),
 });
 

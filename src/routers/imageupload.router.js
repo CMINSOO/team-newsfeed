@@ -1,5 +1,5 @@
 import express from "express";
-import imageUploader from "../middlewares/image-upload-middleware";
+import { imageUploader } from "../middlewares/image-upload-middleware.js";
 
 const imageRouter = express.Router();
 
