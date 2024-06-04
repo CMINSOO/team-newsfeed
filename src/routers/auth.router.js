@@ -16,6 +16,8 @@ import {
 } from "../constants/env.constants.js";
 /* 24.06.03 김영규 추가 - end */
 import { updateValidator } from "../middlewares/validators/update-validator.middleware.js";
+// 24.06.04 전수원 추가
+import authMiddleware from "../middlewares/auth.middleware.js";
 // 외부로
 const authRouter = express.Router();
 /* 24.06.03 김영규 추가 */
@@ -126,44 +128,49 @@ authRouter.post("/sign-in", signInValidator, async (req, res, next) => {
 });
 
 // 수정 api
-authRouter.put("/user/:id", updateValidator, async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const { email, name, newpassword, nickname, role } = req.body;
+authRouter.put(
+  "/user",
+  authMiddleware,
+  updateValidator,
+  async (req, res, next) => {
+    try {
+      const { id } = req.user;
+      const { email, name, newpassword, nickname, role } = req.body;
 
-    const existuserid = await prisma.user.findFirst({
-      where: { id: +id },
-    });
-
-    if (!existuserid) {
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({
-        status: HTTP_STATUS.BAD_REQUEST,
-        Message: MESSAGES.AUTH.COMMON.EMAIL.NOT_EXIST_EMAIL,
+      const existuserid = await prisma.user.findFirst({
+        where: { id: +id },
       });
+
+      if (!existuserid) {
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
+          status: HTTP_STATUS.BAD_REQUEST,
+          Message: MESSAGES.AUTH.COMMON.EMAIL.NOT_EXIST_EMAIL,
+        });
+      }
+      const hashedPassword = await bcrypt.hash(newpassword, 10);
+      const userInfo = await prisma.user.update({
+        data: {
+          name: name,
+          password: hashedPassword,
+          email: email,
+          nickname: nickname,
+          role: role,
+        },
+        where: {
+          id: parseInt(id),
+        },
+      });
+      userInfo.password = undefined;
+      return res.status(HTTP_STATUS.OK).json({
+        status: HTTP_STATUS.OK,
+        message: MESSAGES.AUTH.UPDATE.SUCCEED,
+        data: userInfo,
+      });
+    } catch (error) {
+      next(error);
     }
-    const hashedPassword = await bcrypt.hash(newpassword, 10);
-    const userInfo = await prisma.user.update({
-      data: {
-        name: name,
-        password: hashedPassword,
-        email: email,
-        nickname: nickname,
-        role: role,
-      },
-      where: {
-        id: parseInt(id),
-      },
-    });
-    userInfo.password = undefined;
-    return res.status(HTTP_STATUS.OK).json({
-      status: HTTP_STATUS.OK,
-      message: MESSAGES.AUTH.UPDATE.SUCCEED,
-      data: userInfo,
-    });
-  } catch (error) {
-    next(error);
-  }
-});
+  },
+);
 
 /* 24.06.03 김영규 추가 - start */
 

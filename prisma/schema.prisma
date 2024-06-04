@@ -57,7 +57,8 @@ model PostModal {
 
   author User @relation(fields: [authorid], references: [id], onDelete: Cascade)
 
-  likes Like[]
+  comments Comment[]
+  likes    Like[]
 
   @@map("postmodal")
 }
@@ -66,14 +67,15 @@ model Comment {
   id        Int      @id @default(autoincrement()) @map("id")
   userId    Int      @map("userid")
   PostId    Int      @map("postid")
-  nickname  String   @unique @map("nickname")
+  nickname  String   @map("nickname")
   content   String
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   Users User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  Likes Like[]
+  Likes     Like[]
+  PostModal PostModal @relation(fields: [PostId], references: [id], onDelete: Cascade)
 
   @@map("comments")
 }
