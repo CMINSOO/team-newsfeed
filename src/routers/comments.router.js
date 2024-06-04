@@ -59,8 +59,8 @@ commentRouter.get("/:postId/comments", async (req, res, next) => {
     const { postId } = req.params;
 
     //게시글이 존재하는지 확인
-    const post = await prisma.findFirst({
-      postId: +postId,
+    const post = await prisma.posts.findFirst({
+      where: { postId: +postId },
     });
     if (!post) {
       return res
@@ -118,7 +118,7 @@ commentRouter.put(
 
       //댓글 수정
       const updatedComment = await prisma.comments.update({
-        where: { postId: +postId, commetId: +commentId },
+        where: { postId: +postId, commentId: +commentId },
         data: { content: content },
       });
 

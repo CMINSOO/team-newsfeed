@@ -100,7 +100,7 @@ authRouter.post("/sign-in", signInValidator, async (req, res, next) => {
       });
     }
     /** Access Token, Refresh Token 발급 API **/
-    const { id } = req.body;
+    const { id } = user;
     const accessToken = createAccessToken(id);
     const refreshToken = createRefreshToken(id);
 
