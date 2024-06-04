@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <span>이메일 인증하기</span>
+    <br />
+    <span>이메일 주소</span>
+    <input type="text" id="email"/><button onclick="mailing(getElementById('email').value)">인증번호보내기</button>
+    <br/>
+    <span>보안코드</span>
+    <input type="text" id="code" /> <button>제출</button>
+
+    <script>
+      function mailing(email) {
+        alert(email);
+        fetch("/api/users", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        })
+          .then((response) => response.json())
+          .then((data) => console.log(data))
+          .catch((error) => console.error(error));
+      }
+    </script>
+  </body>
+</html>

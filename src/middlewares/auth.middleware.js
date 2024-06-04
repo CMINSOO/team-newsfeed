@@ -4,15 +4,21 @@ import { ACCESS_TOKEN_SECRET } from "../constants/env.constants.js";
 
 export default async function (req, res, next) {
   try {
-    const authorization = req.headers["authorization"];
-    //  **Authorization** 또는 **AccessToken이 없는 경우** - “인증 정보가 없습니다.”
-    if (!authorization) throw new Error(`인증 정보가 없습니다.`);
 
+    const token = req.cookies.accessToken;
+    //const authorization = req.headers["authorization"];
+
+    //  **Authorization** 또는 **AccessToken이 없는 경우** - “인증 정보가 없습니다.”
+    if (!token) throw new Error(`인증 정보가 없습니다.`);
+
+
+    /*
     // - **JWT 표준 인증 형태와 일치하지 않는 경우** - “지원하지 않는 인증 방식입니다.”
     const [tokenType, token] = authorization.split(" "); // 토큰타입 Bearer와 payload를 분리
 
     if (tokenType !== "Bearer")
-      throw new Error("지원하지 않는 인증 방식입니다.");
+      throw new Error("지원하지 않는 인증 방식입니다.");*/
+
     const decodedToken = jwt.verify(token, ACCESS_TOKEN_SECRET); // 토큰의payload와 SECRETKEY가 동일하면 해당 데이터를 해석하여 변수로할
     const userId = decodedToken.id; // 해석한 데이터객체 내 userId키의 값을 userId 변수에 할당 / 해당변수는 숫자로 된 문자열
 
