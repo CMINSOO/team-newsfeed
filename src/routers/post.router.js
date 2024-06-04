@@ -133,7 +133,7 @@ postRouter.put("/:id", upddatePostValidator, async (req, res, next) => {
       where: { id: +id, authorid },
     });
 
-    if (existPost) {
+    if (!existPost) {
       return res.status(HTTP_STATUS.NOTFOUND).json({
         status: HTTP_STATUS.NOTFOUND,
         message: MESSAGES.POST.COMMON.NOT_FOUND,
@@ -173,7 +173,7 @@ postRouter.delete("/:id", async (req, res, next) => {
       where: { id: +id, authorid },
     });
 
-    if (existPost) {
+    if (!existPost) {
       return res.status(HTTP_STATUS.NOTFOUND).json({
         status: HTTP_STATUS.NOTFOUND,
         message: MESSAGES.POST.COMMON.NOT_FOUND,
