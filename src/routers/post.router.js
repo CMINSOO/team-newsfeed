@@ -89,7 +89,7 @@ postRouter.get("/:id", async (req, res, next) => {
 
     let data = await prisma.postModal.findUnique({
       where: { id: +id, authorid },
-      include: { author: true },
+      include: { author: true, comments: true },
     });
 
     if (!data) {
@@ -99,6 +99,16 @@ postRouter.get("/:id", async (req, res, next) => {
       });
     }
 
+    const comments = data.comments.map((comment) => ({
+      id: comment.id,
+      userid: comment.userId,
+      postId: comment.postId,
+      nickname: comment.nickname,
+      content: comment.content,
+      createdAt: comment.createdAt,
+      updatedAt: comment.updatedAt,
+    }));
+
     data = {
       id: data.id,
       authorName: data.author.name,
@@ -107,7 +117,9 @@ postRouter.get("/:id", async (req, res, next) => {
       deleteYn: data.deleteYn,
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
+      comments: comments,
     };
+
     return res.status(HTTP_STATUS.OK).json({
       status: HTTP_STATUS.OK,
       message: MESSAGES.POST.READ_DETAIL,
