@@ -14,7 +14,7 @@ commentRouter.post(
     //댓글 작성자가 로그인된 사용자인지 검정
     try {
       //authMiddleware 에서 userId를 전달 받음
-      const { userId } = req.user;
+      const { id, nickname } = req.user;
       //댓글 작성 게시물의 'postId'를 path parameters로 전달 받음
       const { postId } = req.params;
       //댓글 생성을 위한 'content'를 body로 전달 받음
@@ -28,19 +28,20 @@ commentRouter.post(
       }
 
       //게시글이 존재하는지 확인
-      const post = await prisma.posts.findFirst({ where: { postId: +postId } });
+      const post = await prisma.postModal.findFirst({ where: { id: +postId } });
       if (!post) {
         return res
-          .status(HTTP_STATUS.NOT_FOUND)
+          .status(HTTP_STATUS.NOTFOUND)
           .json({ message: MESSAGES.POST.COMMON.NOT_FOUND });
       }
 
       //comments 테이블에 댓글 생성
-      const comment = await prisma.comments.create({
+      const comment = await prisma.comment.create({
         data: {
           content,
-          UserId: +userId,
+          userId: +id,
           PostId: +postId,
+          nickname,
         },
       });
 
@@ -59,8 +60,8 @@ commentRouter.get("/:postId/comments", async (req, res, next) => {
     const { postId } = req.params;
 
     //게시글이 존재하는지 확인
-    const post = await prisma.posts.findFirst({
-      where: { postId: +postId },
+    const post = await prisma.postModal.findFirst({
+      where: { id: +postId },
     });
     if (!post) {
       return res
@@ -69,14 +70,16 @@ commentRouter.get("/:postId/comments", async (req, res, next) => {
     }
 
     //댓글 조회
-    const comments = await prisma.comments.findMany({
+    const comments = await prisma.comment.findMany({
       where: { PostId: +postId },
       select: {
+        id: true,
         content: true,
-        user: {
+        Users: {
           select: { nickname: true },
         },
       },
+
       orderBy: { createdAt: "desc" },
     });
 
@@ -107,8 +110,8 @@ commentRouter.put(
       }
 
       //댓글이 존재하는지 확인
-      const comment = await prisma.comments.findFirst({
-        where: { commentId: +commentId },
+      const comment = await prisma.comment.findFirst({
+        where: { id: +commentId },
       });
       if (!comment) {
         return res
@@ -117,14 +120,15 @@ commentRouter.put(
       }
 
       //댓글 수정
-      const updatedComment = await prisma.comments.update({
-        where: { postId: +postId, commentId: +commentId },
+      const updatedComment = await prisma.comment.update({
+        where: { PostId: +postId, id: +commentId },
         data: { content: content },
       });
 
-      return res
-        .status(HTTP_STATUS.OK)
-        .json({ message: MESSAGES.POST.COMMENT.UPDATE.SUCCEED });
+      return res.status(HTTP_STATUS.OK).json({
+        message: MESSAGES.POST.COMMENT.UPDATE.SUCCEED,
+        data: updatedComment,
+      });
     } catch (error) {
       next(error);
     }
@@ -137,14 +141,12 @@ commentRouter.delete(
   async (req, res, next) => {
     //댓글 작성자가 로그인된 사용자인지 검증
     try {
-      //댓글 작성 게시물의 'postId'를 path parameters로 전달 받음
-      const { postId } = req.params;
-      //댓글의 'commentId'를 path parameters로 전달 받음
-      const { commentId } = req.params;
+      //댓글 작성 게시물의 'postId'와 'commentId'를 path parameters로 전달 받음
+      const { postId, commentId } = req.params;
 
       //댓글이 존재하는지 확인
-      const comment = await prisma.comments.findFirst({
-        commentId: +commentId,
+      const comment = await prisma.comment.findFirst({
+        where: { id: +commentId },
       });
       if (!comment) {
         return res
@@ -153,8 +155,8 @@ commentRouter.delete(
       }
 
       //댓글 삭제
-      await prisma.comments.delete({
-        where: { postId: +postId, commentId: +commentId },
+      await prisma.comment.delete({
+        where: { PostId: +postId, id: +commentId },
       });
 
       return res
