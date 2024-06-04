@@ -56,6 +56,8 @@ export const MESSAGES = {
     },
     POSTING: {
       SUCCEED: "게시글 생성이 완료되었습니다.",
+      TIMESTART: "시작시간을 입력해주세요",
+      TIMEFINISH: "마감시간을 입력해주세요",
     },
     READ_POST: {
       SUCCEED: "게시글 조회에 성공하였습니다.",

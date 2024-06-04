@@ -48,8 +48,8 @@ model PostModal {
   title              String
   content            String
   deleteYn           deleteYn @default(YES)
-  scheduledTimeStart String
-  scheduledTimeEnd   String
+  scheduledTimeStart DateTime
+  scheduledTimeEnd   DateTime
   createdAt          DateTime @default(now()) @map("created_at")
   updatedAt          DateTime @updatedAt @map("updated_at")
 

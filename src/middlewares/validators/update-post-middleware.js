@@ -8,6 +8,12 @@ const schema = Joi.object({
   content: Joi.string().required().messages({
     "any.required": MESSAGES.POST.COMMON.CONTENT.REQUIRED,
   }),
+  scheduledTimeStart: Joi.string().required().messages({
+    "any.required": MESSAGES.POST.POSTING.TIMESTART,
+  }),
+  scheduledTimeEnd: Joi.string().required().messages({
+    "any.required": MESSAGES.POST.POSTING.TIMESTART,
+  }),
 });
 
 export const upddatePostValidator = async (req, res, next) => {

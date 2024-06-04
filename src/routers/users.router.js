@@ -4,7 +4,7 @@ import { prisma } from "../utils/prisma.util.js";
 const userRouter = express.Router();
 
 // 사용자 조회
-userRouter.get("/user/:id", async (req, res, next) => {
+userRouter.get("/:id", async (req, res, next) => {
   const { id } = req.params;
 
   const user = await prisma.user.findFirst({

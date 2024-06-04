@@ -53,7 +53,7 @@ postRouter.get("/", async (req, res, next) => {
       },
 
       include: {
-        Users: true,
+        author: true,
       },
     });
 
@@ -123,14 +123,14 @@ postRouter.get("/:id", async (req, res, next) => {
 postRouter.put("/:id", upddatePostValidator, async (req, res, next) => {
   try {
     const user = req.user;
-    const authorId = user.id;
+    const authorid = user.id;
 
     const { id } = req.params;
 
     const { title, content, scheduledTimeStart, scheduledTimeEnd } = req.body;
 
     let existPost = await prisma.postModal.findUnique({
-      where: { id: +id, authorId },
+      where: { id: +id, authorid },
     });
 
     if (existPost) {
@@ -140,11 +140,13 @@ postRouter.put("/:id", upddatePostValidator, async (req, res, next) => {
       });
     }
 
-    const data = await prisma.postModal.update({
-      where: { id: +id, authorId },
+    const data = await prisma.postModal.updateMany({
+      where: { id: +id, authorid },
       data: {
         ...(title && { title }),
         ...(content && { content }),
+        ...(scheduledTimeStart && { scheduledTimeStart }),
+        ...(scheduledTimeEnd && { scheduledTimeEnd }),
       },
     });
 
@@ -163,12 +165,12 @@ postRouter.put("/:id", upddatePostValidator, async (req, res, next) => {
 postRouter.delete("/:id", async (req, res, next) => {
   try {
     const user = req.user;
-    const authorId = user.id;
+    const authorid = user.id;
 
     const { id } = req.params;
 
     let existPost = await prisma.postModal.findUnique({
-      where: { id: +id, authorId },
+      where: { id: +id, authorid },
     });
 
     if (existPost) {
@@ -179,7 +181,7 @@ postRouter.delete("/:id", async (req, res, next) => {
     }
 
     const data = await prisma.postModal.delete({
-      where: { id: +id, authorId },
+      where: { id: +id, authorid },
     });
 
     return res.status(HTTP_STATUS.OK).json({
