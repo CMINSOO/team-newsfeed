@@ -26,6 +26,8 @@ model User {
   comments      Comment[]
   postmodals    PostModal[]
   likes         Like[]
+  followingid   Follow?       @relation("FollowingId")
+  followerid    Follow?       @relation("FollowerId")
 
   @@map("users")
 }
@@ -87,6 +89,17 @@ model Like {
   Users    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   Posts    PostModal @relation(fields: [PostId], references: [id], onDelete: Cascade)
   Comments Comment   @relation(fields: [commentId], references: [id], onDelete: Cascade)
+}
+
+model Follow {
+  id          Int @id @default(autoincrement()) @map("id")
+  followingId Int @map("followingId")
+  followerId  Int @map("followerId")
+
+  Following User? @relation("FollowingId", fields: [followingId], references: [id])
+  Follower User? @relation("FollowerId", fields: [followerId] references: [id])
+
+  @@map("follows")
 }
 
 enum UserRole {
