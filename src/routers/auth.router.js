@@ -136,7 +136,6 @@ authRouter.put(
     try {
       const { id } = req.user;
       const { email, name, newpassword, nickname, role } = req.body;
-      console.log("id0:" + id);
 
       const existuserid = await prisma.user.findFirst({
         where: { id: +id },
