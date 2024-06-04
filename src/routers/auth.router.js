@@ -100,7 +100,7 @@ authRouter.post("/sign-in", signInValidator, async (req, res, next) => {
       });
     }
     /** Access Token, Refresh Token 발급 API **/
-    const { id } = req.body;
+    const { id } = user;
     const accessToken = createAccessToken(id);
     const refreshToken = createRefreshToken(id);
 
@@ -111,7 +111,7 @@ authRouter.post("/sign-in", signInValidator, async (req, res, next) => {
       userAgent: req.headers["user-agent"], // 사용자의 User Agent 정보를 저장합니다.
     };
 
-    res.cookie("accessToken", accessToken); // Access Token을 Cookie에 전달한다.
+    res.cookie("accessToken", `Bearer ` + accessToken); // Access Token을 Cookie에 전달한다.
     res.cookie("refreshToken", refreshToken); // Refresh Token을 Cookie에 전달한다.
 
     user.password = undefined;
