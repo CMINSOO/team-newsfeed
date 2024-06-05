@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -22,10 +16,10 @@ model User {
   role          UserRole      @default(USER)
   createdAt     DateTime      @default(now()) @map("created_at")
   updatedAt     DateTime      @updatedAt @map("updated_at")
-  refreshtokens RefreshToken?
+  likes         Like[]
   comments      Comment[]
   postmodals    PostModal[]
-  likes         Like[]
+  refreshtokens RefreshToken?
 
   @@map("users")
 }
@@ -35,29 +29,27 @@ model RefreshToken {
   usersId      Int      @unique @map("user_id")
   refreshtoken String   @map("refreshtoken")
   createdAt    DateTime @default(now()) @map("created_at")
-
-  Users User @relation(fields: [usersId], references: [id], onDelete: Cascade)
+  Users        User     @relation(fields: [usersId], references: [id], onDelete: Cascade)
 
   @@map("refreshtoken")
 }
 
 model PostModal {
-  id                 Int      @id @default(autoincrement()) @map("id")
-  authorid           Int      @map("userid")
+  id                 Int       @id @default(autoincrement()) @map("id")
+  authorid           Int       @map("userid")
   image              String?
   title              String
   content            String
-  deleteYn           deleteYn @default(YES)
+  deleteYn           deleteYn  @default(YES)
   scheduledTimeStart DateTime
   scheduledTimeEnd   DateTime
-  createdAt          DateTime @default(now()) @map("created_at")
-  updatedAt          DateTime @updatedAt @map("updated_at")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+  likes              Like[]
+  comments           Comment[]
+  author             User      @relation(fields: [authorid], references: [id], onDelete: Cascade)
 
-  author User @relation(fields: [authorid], references: [id], onDelete: Cascade)
-
-  comments Comment[]
-  likes    Like[]
-
+  @@index([authorid], map: "postmodal_userid_fkey")
   @@map("postmodal")
 }
 
@@ -70,25 +62,28 @@ model Comment {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  Users User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   Likes     Like[]
   PostModal PostModal @relation(fields: [PostId], references: [id], onDelete: Cascade)
+  Users     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([PostId], map: "comments_postid_fkey")
+  @@index([userId], map: "comments_userid_fkey")
   @@map("comments")
 }
 
 model Like {
-  id        Int      @id @default(autoincrement()) @map("id")
-  userId    Int      @map("userid")
-  PostId    Int      @map("postid")
-  commentId Int      @map("commentid")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id        Int       @id @default(autoincrement()) @map("id")
+  userId    Int       @map("userid")
+  PostId    Int       @map("postid")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  Posts     PostModal @relation(fields: [PostId], references: [id], onDelete: Cascade)
+  Users     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Comment   Comment?  @relation(fields: [commentId], references: [id])
+  commentId Int?
 
-  Users    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  Posts    PostModal @relation(fields: [PostId], references: [id], onDelete: Cascade)
-  Comments Comment   @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  @@index([PostId], map: "Like_postid_fkey")
+  @@index([userId], map: "Like_userid_fkey")
 }
 
 enum UserRole {
