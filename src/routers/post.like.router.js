@@ -48,9 +48,12 @@ likeRouter.post("/:postId/likes", authMiddleware, async (req, res, next) => {
       },
     });
 
+    //좋아요 여부 반환
+    const isLiked = true;
+
     return res
       .status(HTTP_STATUS.OK)
-      .json({ message: MESSAGES.POST.LIKE.SUCCEED, data: like });
+      .json({ message: MESSAGES.POST.LIKE.SUCCEED, data: like, isLiked });
   } catch (error) {
     next(error);
   }

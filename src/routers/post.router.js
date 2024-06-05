@@ -84,7 +84,7 @@ postRouter.get("/:id", async (req, res, next) => {
     const { id } = req.params;
 
     let data = await prisma.postModal.findUnique({
-      where: { id: +id, authorid },
+      where: { id: +id },
       include: { author: true, comments: true },
     });
 
@@ -94,6 +94,21 @@ postRouter.get("/:id", async (req, res, next) => {
         message: MESSAGES.POST.COMMON.NOT_FOUND,
       });
     }
+
+    //좋아요 여부 확인
+    const liked = await prisma.like.findFirst({
+      where: {
+        PostId: +id,
+        userId: user.id,
+      },
+    });
+
+    //좋아요 누른 유저 목록 가져오기
+    const likers = await prisma.Like.findMany({
+      where: { PostId: +id },
+      select: { Users: { select: { id: true, nickname: true } } },
+    });
+
     const comments = data.comments.map((comment) => ({
       id: comment.id,
       userid: comment.userId,
@@ -113,6 +128,8 @@ postRouter.get("/:id", async (req, res, next) => {
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
       comments: comments,
+      liked: liked ? true : false,
+      likers: likers,
     };
 
     return res.status(HTTP_STATUS.OK).json({
