@@ -9,15 +9,37 @@
     <span>이메일 인증하기</span>
     <br />
     <span>이메일 주소</span>
-    <input type="text" id="email"/><button onclick="mailing(getElementById('email').value)">인증번호보내기</button>
+    <input type="text" id="email"/><button onclick="mailing(document.getElementById('email').value)">인증번호보내기</button>
     <br/>
     <span>보안코드</span>
-    <input type="text" id="code" /> <button>제출</button>
+    <input type="hidden" id="confirmCode">
+    <input type="text" id="code"/> <button onclick="codeCheck(document.getElementById('code').value)">제출</button>
 
     <script>
+      function codeCheck(code){
+        const confirmCode = document.getElementById("confirmCode").value;
+
+        if(code == confirmCode){
+          alert("확인이 완료되었습니다.");
+        }else if(code != confirmCode){
+          alert("보안코드가 다릅니다.");
+        }
+
+      }
+
       function mailing(email) {
-        alert(email);
-        fetch("/api/users", {
+        const regex = new RegExp('[a-z0-9]+@[a-z]+\.[a-z]{2,3}');
+        if(!regex.test(email)){
+          alert("이메일 형식이 다릅니다.");
+          return;
+        }
+        const scuCode = parseInt(10000*Math.random());
+        const data ={
+          "email" : email,
+          "constant" : `보안코드 : ${scuCode} 입니다.`
+        }
+       
+        fetch("/api/auth/mailAuth", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -27,6 +49,8 @@
           .then((response) => response.json())
           .then((data) => console.log(data))
           .catch((error) => console.error(error));
+
+          document.getElementById("confirmCode").value = scuCode;
       }
     </script>
   </body>

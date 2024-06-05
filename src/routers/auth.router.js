@@ -13,9 +13,14 @@ import {
   TOKEN_EXPIREDIN,
   REFRESH_TOKEN_SECRET,
   REFRESH_TOKEN_EXPIREDIN,
+  EMAIL_SERVICE,
+  EMAIL_USER,
+  EMAIL_PASSWORD,
 } from "../constants/env.constants.js";
 /* 24.06.03 김영규 추가 - end */
 import { updateValidator } from "../middlewares/validators/update-validator.middleware.js";
+import nodemailer from "nodemailer";
+
 // 24.06.04 전수원 추가
 import authMiddleware from "../middlewares/auth.middleware.js";
 // 외부로
@@ -204,6 +209,43 @@ authRouter.post("/sign-out", async (req, res, next) => {
     return res.status(HTTP_STATUS.OK).json({
       status: HTTP_STATUS.OK,
       message: MESSAGES.AUTH.SIGN_OUT,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// 메일인증
+authRouter.post("/mailAuth", async (req, res, next) => {
+  try {
+    const { email, constant } = req.body;
+    const transporter = nodemailer.createTransport({
+      service: EMAIL_SERVICE,
+      port: 587,
+      auth: {
+        user: EMAIL_USER,
+        pass: EMAIL_PASSWORD,
+      },
+    });
+
+    const mailOptions = {
+      from: EMAIL_USER,
+      to: email,
+      subject: "보안코드 확인용 이메일입니다.",
+      text: constant,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error(error);
+      } else {
+        console.log("Email Sent : ", info);
+      }
+    });
+    
+    return res.status(HTTP_STATUS.OK).json({
+      status: HTTP_STATUS.OK,
+      message: "메일이 정상적으로 발송완료되었습니다.",
     });
   } catch (error) {
     next(error);
