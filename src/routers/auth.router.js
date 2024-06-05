@@ -114,7 +114,7 @@ authRouter.post("/sign-in", signInValidator, async (req, res, next) => {
     };
 
     res.cookie("accessToken", `Bearer ` + accessToken); // Access Token을 Cookie에 전달한다.
-    res.cookie("refreshToken", refreshToken); // Refresh Token을 Cookie에 전달한다.
+    res.cookie("refreshToken", `Bearer ` + refreshToken); // Refresh Token을 Cookie에 전달한다.
 
     user.password = undefined;
     return res.status(HTTP_STATUS.OK).json({

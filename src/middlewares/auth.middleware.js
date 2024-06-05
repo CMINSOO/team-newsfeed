@@ -5,8 +5,6 @@ import { ACCESS_TOKEN_SECRET } from "../constants/env.constants.js";
 export default async function (req, res, next) {
   try {
     const authorization = req.cookies.accessToken;
-    //const authorization = req.headers["authorization"];
-
     //  **Authorization** 또는 **AccessToken이 없는 경우** - “인증 정보가 없습니다.”
     if (!authorization) throw new Error(`인증 정보가 없습니다.`);
 
