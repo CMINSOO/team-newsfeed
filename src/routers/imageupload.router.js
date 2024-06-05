@@ -1,5 +1,6 @@
 import express from "express";
-import { upload } from "../middlewares/image-upload-middleware.js";
+import { upload, s3Client } from "../middlewares/image-upload-middleware.js";
+import { GetObjectCommand } from "@aws-sdk/client-s3";
 
 const imageRouter = express.Router();
 
@@ -8,8 +9,19 @@ imageRouter.post("/img", upload.single("img"), (req, res) => {
   if (!req.file) {
     return res.status(400).send("No file uploaded.");
   }
-  console.log(req.file);
-  res.json({ url: req.file.location });
+  res.json({ message: "File uploaded successfully", file: req.file });
+});
+
+imageRouter.get("/download/:key", async (req, res) => {
+  const command = new GetObjectCommand({
+    Bucket: "node-newsfeed-project",
+    Key: req.params.key,
+  });
+  const response = await s3Client.send(command);
+  const fileStream = response.Body;
+  const filename = encodeURIComponent(req.params.key);
+  res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+  fileStream.pipe(res);
 });
 
 export { imageRouter };

@@ -22,16 +22,15 @@ const upload = multer({
     s3: s3Client,
     bucket: "node-newsfeed-project",
     key: (req, file, callback) => {
-      const uploadDirectory = req.query.directory ?? "";
       const extension = path.extname(file.originalname);
       if (!allowedExtensions.includes(extension)) {
         return callback(new Error("wrong extension"));
       }
-      callback(null, `${uploadDirectory}/${Date.now()}_${file.originalname}`);
+      callback(null, `${Date.now()}_${file.originalname}`);
     },
     acl: "public-read",
   }),
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB 제한
 });
 
-export { upload };
+export { upload, s3Client };
