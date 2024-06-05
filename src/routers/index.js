@@ -3,7 +3,7 @@ import { authRouter } from "./auth.router.js";
 import { postRouter } from "./post.router.js";
 import { commentRouter } from "./comments.router.js";
 import { userRouter } from "./users.router.js";
-import { likeRouter } from "./like.router.js";
+import { likeRouter } from "./post.like.router.js";
 import authMiddleware from "./../middlewares/auth.middleware.js";
 
 const apiRouter = express.Router();
