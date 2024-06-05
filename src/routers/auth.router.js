@@ -214,7 +214,7 @@ authRouter.post("/mailAuth", async (req, res, next) => {
     const { email, constant } = req.body;
     const transporter = nodemailer.createTransport({
       service: EMAIL_SERVICE,
-      post: 587,
+      port: 587,
       auth: {
         user: EMAIL_USER,
         pass: EMAIL_PASSWORD,
