@@ -37,9 +37,6 @@ postRouter.post("/", createPostValidator, async (req, res, next) => {
 // 게시글 목록 조회
 postRouter.get("/", async (req, res, next) => {
   try {
-    const user = req.user;
-    const authorid = user.id;
-
     let { sort } = req.query;
     sort = sort?.toLowerCase();
     if (sort !== "desc" && sort !== "asc") {
@@ -47,7 +44,6 @@ postRouter.get("/", async (req, res, next) => {
     }
 
     let data = await prisma.postModal.findMany({
-      where: { authorid },
       orderBy: {
         createdAt: sort,
       },
@@ -199,6 +195,63 @@ postRouter.delete("/:id", async (req, res, next) => {
       status: HTTP_STATUS.OK,
       message: MESSAGES.POST.DELETE,
       data: { id: data.id },
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// 팔로우한사람 의 게시글 목록조회
+postRouter.get("/follow/post", async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    // console.log(`Logged in user ID: ${userId}`);
+
+    // 팔로우한 사용자 ID 목록 가져오기
+    const following = await prisma.follow.findMany({
+      where: { followerId: userId },
+      select: { followingId: true },
+    });
+
+    // console.log(following);
+
+    if (!following || following.length === 0) {
+      return res.status(HTTP_STATUS.NOTFOUND).json({
+        status: HTTP_STATUS.NOTFOUND,
+        message: MESSAGES.POST.FOLLOW.FAIL,
+      });
+    }
+
+    // following 배열에서 followingId만 추출하여 새로운 배열을 생성
+    const followingIds = following.map((f) => f.followingId);
+
+    // console.log("Following IDs:", followingIds);
+
+    // 팔로우한 사용자들의 게시글 가져오기
+    const posts = await prisma.postModal.findMany({
+      where: { authorid: { in: followingIds } }, // userId 대신 authorid 사용
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            nickname: true,
+            role: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
+      }, // 게시글 작성자 정보 포함
+      orderBy: { createdAt: "desc" }, // 최신 게시글 순서대로
+    });
+
+    // console.log("Posts:", posts);
+
+    return res.status(HTTP_STATUS.CREATED).json({
+      status: HTTP_STATUS.CREATED,
+      message: MESSAGES.POST.FOLLOW.SUCCEED,
+      data: posts,
     });
   } catch (error) {
     next(error);
