@@ -89,6 +89,10 @@ export const MESSAGES = {
       NOT_ALLOW: "본인글에는 좋아요를 누를수 없습니다.",
       DUPLICATE_LIKE: "이미 좋아요를 눌렀습니다.",
       SUCCEED: "좋아요를 눌렀습니다.",
+      DELETE: {
+        NOT_FOUND: "좋아요를 누르지 않으셨습니다.",
+        SUCCEED: "좋아요 취소를 완료했습니다.",
+      },
     },
   },
 };

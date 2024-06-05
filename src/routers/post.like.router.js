@@ -93,5 +93,37 @@ likeRouter.get("/:postId/likes", async (req, res, next) => {
 });
 
 //-----------------------------좋아요 취소 API---------------------------//
+likeRouter.delete(
+  "/:postId/likes/:likeId",
+  authMiddleware,
+  async (req, res, next) => {
+    //사용자가 로그인된 사용자인지 검증
+    try {
+      //좋아요 게시물의 'postId'와 'likeId'를 path parameters로 전달 받음
+      const { postId, likeId } = req.params;
+
+      //좋아요가 존재하는지 확인
+      const like = await prisma.Like.findFirst({
+        where: { id: +likeId },
+      });
+      if (!like) {
+        return res
+          .status(HTTP_STATUS.BAD_REQUEST)
+          .json({ message: MESSAGES.POST.LIKE.DELETE.NOT_FOUND });
+      }
+
+      //좋아요 취소
+      await prisma.Like.delete({
+        where: { PostId: +postId, id: +likeId },
+      });
+
+      return res
+        .status(HTTP_STATUS.OK)
+        .json({ message: MESSAGES.POST.LIKE.DELETE.SUCCEED });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 export { likeRouter };
