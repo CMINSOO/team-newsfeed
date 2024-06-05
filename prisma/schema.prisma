@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -26,8 +20,21 @@ model User {
   comments      Comment[]
   postmodals    PostModal[]
   likes         Like[]
+  followers     Follow[]      @relation("FollowingRelation")
+  following     Follow[]      @relation("FollowerRelation")
 
   @@map("users")
+}
+
+model Follow {
+  id          Int  @id @default(autoincrement())
+  followerId  Int
+  followingId Int
+  follower    User @relation("FollowingRelation", fields: [followerId], references: [id])
+  following   User @relation("FollowerRelation", fields: [followingId], references: [id])
+
+  @@unique([followerId, followingId])
+  @@map("follows")
 }
 
 model RefreshToken {
@@ -55,7 +62,8 @@ model PostModal {
 
   author User @relation(fields: [authorid], references: [id], onDelete: Cascade)
 
-  likes Like[]
+  likes    Like[]
+  comments Comment[]
 
   @@map("postmodal")
 }
@@ -64,14 +72,13 @@ model Comment {
   id        Int      @id @default(autoincrement()) @map("id")
   userId    Int      @map("userid")
   PostId    Int      @map("postid")
-  nickname  String   @unique @map("nickname")
+  nickname  String   @map("nickname")
   content   String
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  Users User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  Likes Like[]
+  PostModal PostModal @relation(fields: [PostId], references: [id], onDelete: Cascade)
+  Users     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("comments")
 }
@@ -80,13 +87,11 @@ model Like {
   id        Int      @id @default(autoincrement()) @map("id")
   userId    Int      @map("userid")
   PostId    Int      @map("postid")
-  commentId Int      @map("commentid")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  Users    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  Posts    PostModal @relation(fields: [PostId], references: [id], onDelete: Cascade)
-  Comments Comment   @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  Users User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Posts PostModal @relation(fields: [PostId], references: [id], onDelete: Cascade)
 }
 
 enum UserRole {

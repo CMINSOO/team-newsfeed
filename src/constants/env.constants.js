@@ -9,3 +9,5 @@ export const REFRESH_TOKEN_EXPIREDIN = "7d";
 export const EMAIL_SERVICE = process.env.EMAIL_SERVICE;
 export const EMAIL_USER = process.env.EMAIL_USER;
 export const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD;
+export const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
+export const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
