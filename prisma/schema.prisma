@@ -81,6 +81,19 @@ model Like {
   Posts PostModal @relation(fields: [PostId], references: [id], onDelete: Cascade)
 }
 
+// model commentLike {
+//   id        Int      @id @default(autoincrement()) @map("id")
+//   userId    Int      @map("userid")
+//   PostId    Int      @map("postid")
+//   CommentId Int      @map("commentid")
+//   createdAt DateTime @default(now()) @map("created_at")
+//   updatedAt DateTime @updatedAt @map("updated_at")
+
+//   Users    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+//   Posts    PostModal @relation(fields: [PostId], references: [id], onDelete: Cascade)
+//   Comments mment     @relation(fields: [CommentId], references: [id], onDelete: Cascade)
+// }
+
 enum UserRole {
   USER
   ADMIN
