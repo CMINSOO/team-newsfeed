@@ -49,8 +49,8 @@ model PostModal {
 
   author User @relation(fields: [authorid], references: [id], onDelete: Cascade)
 
-  comments Comment[]
   likes    Like[]
+  comments Comment[]
 
   @@map("postmodal")
 }
@@ -64,10 +64,8 @@ model Comment {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  Users User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  Likes     Like[]
   PostModal PostModal @relation(fields: [PostId], references: [id], onDelete: Cascade)
+  Users     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("comments")
 }
@@ -79,10 +77,8 @@ model Like {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  Users     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  Posts     PostModal @relation(fields: [PostId], references: [id], onDelete: Cascade)
-  Comment   Comment?  @relation(fields: [commentId], references: [id])
-  commentId Int?
+  Users User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Posts PostModal @relation(fields: [PostId], references: [id], onDelete: Cascade)
 }
 
 enum UserRole {
