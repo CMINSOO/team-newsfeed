@@ -20,8 +20,21 @@ model User {
   comments      Comment[]
   postmodals    PostModal[]
   likes         Like[]
+  followers     Follow[]      @relation("FollowingRelation")
+  following     Follow[]      @relation("FollowerRelation")
 
   @@map("users")
+}
+
+model Follow {
+  id          Int  @id @default(autoincrement())
+  followerId  Int
+  followingId Int
+  follower    User @relation("FollowingRelation", fields: [followerId], references: [id])
+  following   User @relation("FollowerRelation", fields: [followingId], references: [id])
+
+  @@unique([followerId, followingId])
+  @@map("follows")
 }
 
 model RefreshToken {

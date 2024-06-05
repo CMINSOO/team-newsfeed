@@ -94,5 +94,19 @@ export const MESSAGES = {
         SUCCEED: "좋아요 취소를 완료했습니다.",
       },
     },
+    FOLLOW: {
+      SUCCEED: "팔로우하는 유저의 게시글을 불러오는대 성공하였습니다",
+      FAIL: "팔로잉 하는 유저를 찾을수없습니다",
+    },
+  },
+  FOLLOW: {
+    FOLLOWING: {
+      SUCCEED: "팔로잉 에 성공 하였습니다.",
+      NO_USER: "사용자가 존재하지 않습니다.",
+    },
+    UNFOLLOWING: {
+      SUCCEED: "언팔에 성공하였습니다",
+      NO_USER: "팔로우 하는 유저가 없습니다.",
+    },
   },
 };
