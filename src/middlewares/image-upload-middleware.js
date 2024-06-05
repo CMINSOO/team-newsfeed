@@ -15,7 +15,7 @@ const s3Client = new S3Client({
   },
 });
 
-const allowedExtensions = [".png", ".jpg", ".jpeg", ".bmp"];
+const allowedExtensions = [".png", ".jpg", ".jpeg", ".bmp", ".gif"];
 
 const upload = multer({
   storage: multerS3({
