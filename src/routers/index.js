@@ -12,6 +12,6 @@ apiRouter.use("/auth", authRouter);
 apiRouter.use("/post", authMiddleware, postRouter);
 apiRouter.use("/post", authMiddleware, commentRouter);
 apiRouter.use("/user", authMiddleware, userRouter);
-apiRouter.use("/image", imageRouter);
+apiRouter.use("/test", imageRouter);
 
 export { apiRouter };
