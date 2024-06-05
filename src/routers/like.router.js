@@ -58,6 +58,40 @@ likeRouter.post("/:postId/likes", authMiddleware, async (req, res, next) => {
 
 //-----------------------------좋아요 조회 API---------------------------//
 
+likeRouter.get("/:postId/likes", async (req, res, next) => {
+  try {
+    //좋아요 게시물의 'postId'를 path parameters로 전달 받음
+    const { postId } = req.params;
+
+    //게시글이 존재하는지 확인
+    const post = await prisma.postModal.findFirst({
+      where: { id: +postId },
+    });
+    if (!post) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ message: MESSAGES.POST.COMMON.NOT_FOUND });
+    }
+
+    //좋아요 목록 조회
+    const likes = await prisma.Like.findMany({
+      where: { PostId: +postId },
+      select: {
+        id: true,
+        Users: {
+          select: { nickname: true },
+        },
+      },
+
+      orderBy: { createdAt: "desc" },
+    });
+
+    return res.status(HTTP_STATUS.OK).json({ data: likes });
+  } catch (error) {
+    next(error);
+  }
+});
+
 //-----------------------------좋아요 취소 API---------------------------//
 
 export { likeRouter };
