@@ -98,7 +98,6 @@ postRouter.get("/:id", async (req, res, next) => {
         message: MESSAGES.POST.COMMON.NOT_FOUND,
       });
     }
-
     const comments = data.comments.map((comment) => ({
       id: comment.id,
       userid: comment.userId,

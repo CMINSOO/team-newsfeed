@@ -26,10 +26,21 @@ model User {
   comments      Comment[]
   postmodals    PostModal[]
   likes         Like[]
-  followingid   Follow?       @relation("FollowingId")
-  followerid    Follow?       @relation("FollowerId")
+  followers     Follow[]      @relation("FollowingRelation")
+  following     Follow[]      @relation("FollowerRelation")
 
   @@map("users")
+}
+
+model Follow {
+  id          Int  @id @default(autoincrement())
+  followerId  Int
+  followingId Int
+  follower    User @relation("FollowingRelation", fields: [followerId], references: [id])
+  following   User @relation("FollowerRelation", fields: [followingId], references: [id])
+
+  @@unique([followerId, followingId])
+  @@map("follows")
 }
 
 model RefreshToken {
@@ -57,8 +68,8 @@ model PostModal {
 
   author User @relation(fields: [authorid], references: [id], onDelete: Cascade)
 
-  comments Comment[]
   likes    Like[]
+  comments Comment[]
 
   @@map("postmodal")
 }
@@ -91,17 +102,6 @@ model Like {
   Users    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   Posts    PostModal @relation(fields: [PostId], references: [id], onDelete: Cascade)
   Comments Comment   @relation(fields: [commentId], references: [id], onDelete: Cascade)
-}
-
-model Follow {
-  id          Int @id @default(autoincrement()) @map("id")
-  followingId Int @map("followingId")
-  followerId  Int @map("followerId")
-
-  Following User? @relation("FollowingId", fields: [followingId], references: [id])
-  Follower User? @relation("FollowerId", fields: [followerId] references: [id])
-
-  @@map("follows")
 }
 
 enum UserRole {
