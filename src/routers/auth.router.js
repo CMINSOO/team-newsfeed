@@ -242,7 +242,7 @@ authRouter.post("/mailAuth", async (req, res, next) => {
         console.log("Email Sent : ", info);
       }
     });
-    
+
     return res.status(HTTP_STATUS.OK).json({
       status: HTTP_STATUS.OK,
       message: "메일이 정상적으로 발송완료되었습니다.",
