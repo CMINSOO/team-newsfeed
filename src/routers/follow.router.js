@@ -42,7 +42,7 @@ followRouter.post("/:id/follow", async (req, res, next) => {
   }
 });
 // 언팔
-followRouter.post("/:id/unfollow", async (req, res, next) => {
+followRouter.delete("/:id/unfollow", async (req, res, next) => {
   try {
     const userId = parseInt(req.user.id, 10);
     const followingId = parseInt(req.params.id, 10);
